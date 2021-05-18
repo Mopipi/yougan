@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{c8a081de-79ed-421b-af00-b2a5026ffda6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\raobjlist.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\define.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\synclock.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\thread.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\atomic.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\threadqueue.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\synclock.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\thread.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
