@@ -13,7 +13,7 @@ typedef uint32 (*Run)(void*);
 
 class Thread
 {
-    DISALLOW_COPY_AND_ASSIGN(Thread)
+    DISALLOW_COPY_AND_ASSIGN(Thread);
 public:
     Thread();
     ~Thread();

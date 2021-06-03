@@ -13,7 +13,7 @@ enum Sync {
 
 template<class T>
 class AutoLock {
-    DISALLOW_COPY_AND_ASSIGN(AutoLock)
+    DISALLOW_COPY_AND_ASSIGN(AutoLock);
 public:
     AutoLock(T& lock) : m_lock(&lock) { m_lock->lock(); }
     ~AutoLock() { m_lock->unlock(); }
@@ -22,7 +22,7 @@ private:
 };
 
 class Mutex {
-    DISALLOW_COPY_AND_ASSIGN(Mutex)
+    DISALLOW_COPY_AND_ASSIGN(Mutex);
 public:
     typedef AutoLock<Mutex> Auto;
 public:
@@ -42,7 +42,7 @@ private:
 
 // 原子自旋锁
 class AtomSpinLock {
-    DISALLOW_COPY_AND_ASSIGN(AtomSpinLock)
+    DISALLOW_COPY_AND_ASSIGN(AtomSpinLock);
 public:
     typedef AutoLock<AtomSpinLock> Auto;
     enum {
@@ -63,7 +63,7 @@ private:
 
 // 系统自旋锁
 class SpinLock {
-    DISALLOW_COPY_AND_ASSIGN(SpinLock)
+    DISALLOW_COPY_AND_ASSIGN(SpinLock);
 public:
     typedef AutoLock<SpinLock> Auto;
 
@@ -83,7 +83,7 @@ private:
 
 // 系统原子锁
 class FlagSpinLock {
-    DISALLOW_COPY_AND_ASSIGN(FlagSpinLock)
+    DISALLOW_COPY_AND_ASSIGN(FlagSpinLock);
 public:
     FlagSpinLock();
     ~FlagSpinLock();
@@ -96,7 +96,7 @@ public:
 };
 
 class SyncCond {
-    DISALLOW_COPY_AND_ASSIGN(SyncCond)
+    DISALLOW_COPY_AND_ASSIGN(SyncCond);
 public:
 public:
     SyncCond();
@@ -115,7 +115,7 @@ private:
 
 // 普通读写锁
 class RWLock {
-    DISALLOW_COPY_AND_ASSIGN(RWLock)
+    DISALLOW_COPY_AND_ASSIGN(RWLock);
 public:
     enum {
         unlocked,
@@ -146,7 +146,7 @@ public:
 
 // 系统读写锁
 class SRWLock {
-    DISALLOW_COPY_AND_ASSIGN(SRWLock)
+    DISALLOW_COPY_AND_ASSIGN(SRWLock);
 public:
     SRWLock();
     ~SRWLock();
@@ -165,7 +165,7 @@ private:
 
 // 原子读写锁
 class AtomRWLock {
-    DISALLOW_COPY_AND_ASSIGN(AtomRWLock)
+    DISALLOW_COPY_AND_ASSIGN(AtomRWLock);
 public:
     AtomRWLock();
     ~AtomRWLock();
@@ -180,7 +180,7 @@ private:
 };
 
 class Semaphore {
-    DISALLOW_COPY_AND_ASSIGN(Semaphore)
+    DISALLOW_COPY_AND_ASSIGN(Semaphore);
 public:
     Semaphore(int initcount = 0);
     ~Semaphore();

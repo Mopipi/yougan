@@ -81,6 +81,17 @@ namespace Socket {
         return setsockopt(sock, level, optname, optval, len);
     }
 
+
+    // 读取套接字参数
+    int getSockopt(SOCKET sock, int level, int optname, char *optval, int *optlen) {
+        SOCKLEN len = (optlen) ? *optlen : 0;
+        int ret;
+        ret = getsockopt(sock, level, optname, optval, &len);
+        if (optlen) *optlen = len;
+
+        return ret;
+    }
+
     // 调用ioctlsocket，设置输出输入参数
     int ioctl(SOCKET sock, long cmd, unsigned long *argp) {
         int ret;
@@ -128,5 +139,38 @@ namespace Socket {
     // 接收消息
     int recv(SOCKET sock, void *buf, int size, int mode) {
         return ::recv(sock, (char*)buf, size, mode);
+    }
+
+    // 设置非阻塞
+    int setNonBlocking(SOCKET sock, bool on) {
+        ulong opt = on ? 1 : 0;
+        return ioctl(sock, FIONBIO, &opt);
+    }
+
+
+    // 设置地址重用
+    int setReuseAddr(SOCKET sock, bool on) {
+        ulong opt = on ? 1 : 0;
+        return setSockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(ulong));
+    }
+
+    // 检测socket错误
+    int isSocketError(SOCKET sock) {
+        int optval = SOCKET_ERROR;
+        int optlen = sizeof(optval);
+        if (getSockopt(sock, SOL_SOCKET, SO_ERROR, (char *)&optval, &optlen) == SOCKET_ERROR)
+            return SOCKET_ERROR;
+        return optval;
+    }
+
+    // 获取错误信息
+    int getErrno(void) {
+        int ret;
+#ifdef WIN32
+        ret = (int)WSAGetLastError();
+#else
+        ret = errno;
+#endif
+        return ret;
     }
 }

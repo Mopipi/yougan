@@ -7,20 +7,8 @@ Network::Network():m_quit(true), m_maxfd(0) {
     FD_ZERO(&m_wfdset[SelectBak]);
 }
 
-void Network::init() {
-    m_netEventNum = 1;
-}
-
 void Network::start() {
-    m_netEvent = new NetEvent[m_netEventNum];
-    for (uint32 i = 0; i < m_netEventNum; ++i) {
-        m_netEvent[i].start();
-    }
     m_thread.start((Run)running, this);
-}
-
-NetEvent* Network::getNetEvent(SOCKET sock) {
-    return &m_netEvent[sock % m_netEventNum];
 }
 
 NetID Network::addHandler(BaseHandler *handler) {
@@ -89,9 +77,7 @@ void Network::dirtySocket() {
             if (iter != m_registerTable.end()) {
                 BaseHandler* handler = iter->handler;
                 SOCKET sock = handler->getSocket();
-
-                NetEvent* netEvent = getNetEvent(sock);
-                netEvent->pushHandlers(handler, NetEvent::ioshut);
+                handler->onClose();
 
                 delSocket(sock);
                 m_registerTable.erase(netid);
@@ -121,24 +107,19 @@ uint32 Network::work() {
         m_wfdset[SelectUse] = m_wfdset[SelectBak];
         int ret = ::select(m_maxfd + 1, &m_rfdset[SelectUse], &m_wfdset[SelectUse], 0, &tv);
         if (ret > 0) {
-            m_rwlock.rlock();
+            //m_rwlock.rlock();
             for (RegisterTableIter iter = m_registerTable.beg(); iter != m_registerTable.end(); ++iter) {
                 BaseHandler* handler = iter->handler;
                 SOCKET sock = handler->getSocket();
 
-                uint32 ioevent = NetEvent::ionone;
                 if (FD_ISSET(sock, &m_rfdset[SelectUse])) {
-                    ioevent = ioevent | NetEvent::iorecv;
+                    handler->onCanRead();
                 }
                 if (FD_ISSET(sock, &m_wfdset[SelectUse])) {
-                    ioevent = ioevent | NetEvent::iosend;
-                }
-                if (ioevent) {
-                    NetEvent* netEvent = getNetEvent(sock);
-                    netEvent->pushHandlers(handler, ioevent);
+                    handler->onCanWrite();
                 }
             }
-            m_rwlock.unrlock();
+            //m_rwlock.unrlock();
         } else if (ret == SOCKET_ERROR && EINTR != WSAGetLastError()) {
 
         }

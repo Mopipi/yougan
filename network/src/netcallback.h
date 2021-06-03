@@ -4,6 +4,8 @@
 #include "define.h"
 #include "socket.h"
 
+class Network;
+
 class NetCallback
 {
 public:
@@ -37,7 +39,7 @@ public:
     @ip			连接ip
     @port			连接port
     */
-    virtual void onConnect(bool result, int handle, NetID netid, Host host, Port port) = 0;
+    virtual void onConnect(bool result, uint32 handle, NetID netid, Host host, Port port) = 0;
 };
 
 #endif

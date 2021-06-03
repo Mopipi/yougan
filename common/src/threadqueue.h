@@ -5,7 +5,7 @@
 
 template<class T>
 class ThreadQueue {
-    DISALLOW_COPY_AND_ASSIGN(ThreadQueue)
+    DISALLOW_COPY_AND_ASSIGN(ThreadQueue);
 public:
     ThreadQueue(uint32 size) : m_head(0), m_tail(0), m_size(size + 1), m_rsem(0), m_wsem(size) {
         m_queue = (T*)malloc(m_size * sizeof(T));
@@ -24,7 +24,7 @@ public:
         m_rsem.post();
     }
 
-    void pop(T& t) {
+    void pop(T* t) {
         m_rsem.wait();
         lockPop(t);
         m_wsem.post();

@@ -1,18 +1,17 @@
 #ifndef _NETWORK_H_
 #define _NETWORK_H_
 
-#include "netevent.h"
+#include "thread.h"
+#include "raobjlist.h"
+#include "basehandler.h"
 
 class Network{
-    DISALLOW_COPY_AND_ASSIGN(Network)
+    DISALLOW_COPY_AND_ASSIGN(Network);
 public:
     Network();
     ~Network() {};
 public:
-    void init();
     void start();
-
-    NetEvent* getNetEvent(SOCKET sock);
 private:
     uint32 work();
     static uint32 running(Network* network);
@@ -55,9 +54,6 @@ private:
     RegisterTable m_registerTable;
     SRWLock m_rwlock;
     Thread m_thread;
-
-    uint32 m_netEventNum;
-    NetEvent *m_netEvent;
 };
 
 #endif

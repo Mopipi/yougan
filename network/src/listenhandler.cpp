@@ -19,8 +19,7 @@ SOCKET ListenHandler::listen(Port port, int backlog, const char *host) {
         return SOCKET_ERROR;
     }
 
-    unsigned long enable = 1;
-    if (SOCKET_ERROR == Socket::setSockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char*)&enable, sizeof(unsigned long))){
+    if (SOCKET_ERROR == Socket::setReuseAddr(sock)){
         Socket::clostSocket(sock);
         return SOCKET_ERROR;
     }
@@ -51,8 +50,7 @@ SOCKET ListenHandler::listen(Port port, int backlog, const char *host) {
     }
 
     // ÉèÎª·Ç×èÈû
-    unsigned long b = 1;
-    if (SOCKET_ERROR == Socket::ioctl(sock, FIONBIO, &b)){
+    if (SOCKET_ERROR == Socket::setNonBlocking(sock)){
         Socket::clostSocket(sock);
         return SOCKET_ERROR;
     }

@@ -4,7 +4,7 @@
 #include "basehandler.h"
 
 class ListenHandler : public BaseHandler {
-    DISALLOW_COPY_AND_ASSIGN(ListenHandler)
+    DISALLOW_COPY_AND_ASSIGN(ListenHandler);
 public:
     ListenHandler(NetCallback* netCallback, JobQueue* jobQueue, uint32 maxPackSize);
     ~ListenHandler() {}

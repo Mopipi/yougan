@@ -1,7 +1,7 @@
 #include "jobaccept.h"
 
 JobAccept::JobAccept(NetID netid, SOCKET sock, Port port, NetCallback *callback)
-    :Job(callback), m_netid(netid), m_sock(sock), m_listenPort(port)
+    :Job(callback, netid), m_sock(sock), m_listenPort(port)
 {
 
 }

@@ -21,9 +21,6 @@
     <ClCompile Include="src\jobaccept.cpp">
       <Filter>src\job</Filter>
     </ClCompile>
-    <ClCompile Include="src\netevent.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\netmodule.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -32,6 +29,12 @@
     </ClCompile>
     <ClCompile Include="src\listenhandler.cpp">
       <Filter>src\handdler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jobrecv.cpp">
+      <Filter>src\job</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jobdisconnect.cpp">
+      <Filter>src\job</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -47,9 +50,6 @@
     <ClInclude Include="src\jobaccept.h">
       <Filter>src\job</Filter>
     </ClInclude>
-    <ClInclude Include="src\netevent.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="src\netmodule.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -64,6 +64,12 @@
     </ClInclude>
     <ClInclude Include="src\netcallback.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jobrecv.h">
+      <Filter>src\job</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jobdisconnect.h">
+      <Filter>src\job</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

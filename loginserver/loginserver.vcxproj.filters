@@ -9,5 +9,13 @@
     <ClCompile Include="src\loginmain.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\loginmodule.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\loginmodule.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

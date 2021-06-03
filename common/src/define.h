@@ -38,6 +38,6 @@ typedef int         SOCKET;
 
 #define DISALLOW_COPY_AND_ASSIGN(ClassName)\
   ClassName(const ClassName &);\
-  ClassName& operator=(const ClassName &);
+  ClassName& operator=(const ClassName &)
 
 #endif

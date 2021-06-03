@@ -3,13 +3,10 @@
 
 #include "job.h"
 
-class Network;
-
 class BaseHandler {
-    DISALLOW_COPY_AND_ASSIGN(BaseHandler)
+    DISALLOW_COPY_AND_ASSIGN(BaseHandler);
 public:
-    enum HandlerType
-    {
+    enum HandlerType {
         HT_TCP,
         HT_LISTEN,
     };
@@ -34,6 +31,10 @@ public:
 
     NetID getNetId() {
         return m_netid;
+    }
+
+    uint32 gethandlerType() {
+        return m_handlerType;
     }
 protected:
     SOCKET m_sock;

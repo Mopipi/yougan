@@ -8,9 +8,12 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-#define PI_SD_BOTH			SD_BOTH
+#define PI_SD_BOTH SD_BOTH
+#define PI_EWOULDBLOCK WSAEWOULDBLOCK
 
 #elif LINUX
+#define PI_EWOULDBLOCK EWOULDBLOCK 
+
 typedef int SOCKET
 #define INVALID_SOCKET (int)(~0)
 #define SOCKET_ERROR (-1)
@@ -50,6 +53,9 @@ namespace Socket {
     // 设置套接字参数
     int setSockopt(SOCKET sock, int level, int optname, const char *optval, int optlen);
 
+    // 读取套接字参数
+    int getSockopt(SOCKET sock, int level, int optname, char *optval, int *optlen);
+
     // 调用ioctlsocket，设置输出输入参数
     int ioctl(SOCKET sock, long cmd, unsigned long *argp);
 
@@ -64,6 +70,18 @@ namespace Socket {
 
     // 接收消息
     int recv(SOCKET sock, void *buf, int size, int mode);
+
+    // 设置非阻塞
+    int setNonBlocking(SOCKET sock, bool on = true);
+
+    // 设置地址重用
+    int setReuseAddr(SOCKET sock, bool on = true);
+
+    // 检测socket错误
+    int isSocketError(SOCKET sock);
+
+    // 获取错误信息
+    int getErrno(void);
 }
 
 #endif

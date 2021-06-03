@@ -16,6 +16,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "loginserver", "loginserver\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "common\common.vcxproj", "{DB08A26D-E9D3-4EE8-A4EF-E4B8745D90B8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gateserver", "gateserver\gateserver.vcxproj", "{70D17155-A182-4084-B068-99A67B8E6B6E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -48,6 +50,14 @@ Global
 		{DB08A26D-E9D3-4EE8-A4EF-E4B8745D90B8}.Release|x64.Build.0 = Release|x64
 		{DB08A26D-E9D3-4EE8-A4EF-E4B8745D90B8}.Release|x86.ActiveCfg = Release|Win32
 		{DB08A26D-E9D3-4EE8-A4EF-E4B8745D90B8}.Release|x86.Build.0 = Release|Win32
+		{70D17155-A182-4084-B068-99A67B8E6B6E}.Debug|x64.ActiveCfg = Debug|x64
+		{70D17155-A182-4084-B068-99A67B8E6B6E}.Debug|x64.Build.0 = Debug|x64
+		{70D17155-A182-4084-B068-99A67B8E6B6E}.Debug|x86.ActiveCfg = Debug|Win32
+		{70D17155-A182-4084-B068-99A67B8E6B6E}.Debug|x86.Build.0 = Debug|Win32
+		{70D17155-A182-4084-B068-99A67B8E6B6E}.Release|x64.ActiveCfg = Release|x64
+		{70D17155-A182-4084-B068-99A67B8E6B6E}.Release|x64.Build.0 = Release|x64
+		{70D17155-A182-4084-B068-99A67B8E6B6E}.Release|x86.ActiveCfg = Release|Win32
+		{70D17155-A182-4084-B068-99A67B8E6B6E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

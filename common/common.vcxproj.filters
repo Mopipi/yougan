@@ -27,12 +27,18 @@
     <ClInclude Include="src\threadqueue.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\server.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\synclock.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\thread.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\server.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

@@ -20,8 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\jobaccept.cpp" />
+    <ClCompile Include="src\jobdisconnect.cpp" />
+    <ClCompile Include="src\jobrecv.cpp" />
     <ClCompile Include="src\listenhandler.cpp" />
-    <ClCompile Include="src\netevent.cpp" />
     <ClCompile Include="src\netmodule.cpp" />
     <ClCompile Include="src\network.cpp" />
     <ClCompile Include="src\socket.cpp" />
@@ -31,9 +32,10 @@
     <ClInclude Include="src\basehandler.h" />
     <ClInclude Include="src\job.h" />
     <ClInclude Include="src\jobaccept.h" />
+    <ClInclude Include="src\jobdisconnect.h" />
+    <ClInclude Include="src\jobrecv.h" />
     <ClInclude Include="src\listenhandler.h" />
     <ClInclude Include="src\netcallback.h" />
-    <ClInclude Include="src\netevent.h" />
     <ClInclude Include="src\netmodule.h" />
     <ClInclude Include="src\network.h" />
     <ClInclude Include="src\socket.h" />

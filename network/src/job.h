@@ -5,20 +5,21 @@
 #include "netcallback.h"
 
 class Job {
-    DISALLOW_COPY_AND_ASSIGN(Job)
+    DISALLOW_COPY_AND_ASSIGN(Job);
 public:
-    Job(NetCallback *netCallBack) :m_netCallback(netCallBack) {}
+    Job(NetCallback *netCallback, NetID netid) :m_netCallback(netCallback), m_netid(netid){}
     virtual ~Job() {}
     virtual void invoke() = 0;
 protected:
-    NetCallback * m_netCallback;
+    NetID m_netid;
+    NetCallback *m_netCallback;
 };
 
 
 class JobQueue {
-    DISALLOW_COPY_AND_ASSIGN(JobQueue)
+    DISALLOW_COPY_AND_ASSIGN(JobQueue);
 public:
-    JobQueue() {
+    JobQueue(Semaphore *loopsem): m_loopsem(loopsem) {
         m_pushJobs = new Jobs;
         m_workJobs = new Jobs;
     }
@@ -48,15 +49,16 @@ public:
     void push(Job *job) {
         m_lock.lock();
         m_pushJobs->push_back(job);
+        m_loopsem->post();
         m_lock.unlock();
     }
 private:
     typedef std::vector<Job*> Jobs;
-
     SpinLock m_lock;
 
     Jobs* m_pushJobs;
     Jobs* m_workJobs;
+    Semaphore *m_loopsem;
 };
 #endif
 
