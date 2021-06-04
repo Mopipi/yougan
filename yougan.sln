@@ -17,6 +17,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "common\common.vcxproj", "{DB08A26D-E9D3-4EE8-A4EF-E4B8745D90B8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gateserver", "gateserver\gateserver.vcxproj", "{70D17155-A182-4084-B068-99A67B8E6B6E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3B6CC82A-C607-4A45-B5A5-217AC3233016} = {3B6CC82A-C607-4A45-B5A5-217AC3233016}
+		{DB08A26D-E9D3-4EE8-A4EF-E4B8745D90B8} = {DB08A26D-E9D3-4EE8-A4EF-E4B8745D90B8}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
