@@ -16,14 +16,24 @@ public:
     virtual int stop();
     virtual int release();
 public:
+    static uint32 acceptRunning(NetModule* netModule);
+    uint32 acceptAsynWork();
+
+    static uint32 connectRunning(NetModule* netModule);
     uint32 connectAsynWork();
-    static uint32 running(NetModule* netModule);
 public:
     bool listen(const char *host, Port port, int backlog, NetCallback* netkCallback, NetID *netid = 0);
     bool connect(const char *host, Port port, NetCallback* netkCallback, NetID* netid = 0, uint32 timeout = 3000);
     bool connectAsyn(Host host, Port port, uint32* handle, NetCallback* netkCallback, uint32 timeout = 3000);
     bool connectAsyn(const char *host, Port port, uint32* handle, NetCallback* netkCallback, uint32 timeout = 3000);
 private:
+    typedef std::vector<BaseHandler*> ListenQueue;
+
+    fd_set m_fdset;
+    SOCKET m_maxfd;
+    ListenQueue m_listenQueue;
+    Thread  m_acceptAsynThread;
+
     struct ConnectAsyn {
         uint32 handle;
         std::string host;

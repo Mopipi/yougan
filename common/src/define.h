@@ -40,4 +40,8 @@ typedef int         SOCKET;
   ClassName(const ClassName &);\
   ClassName& operator=(const ClassName &)
 
+
+#define TYPE_UPCAST(ptr, type, field) \
+    ((type*)(((char*)(ptr)) - offsetof(type, field)))
+
 #endif

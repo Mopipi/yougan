@@ -5,6 +5,9 @@
 
 NetModule::NetModule(char* moduleName):m_exist(true), m_connectAsynQueue(16), m_connectRetQueue(16) {
     m_network = new Network;
+
+    m_maxfd = 0;
+    FD_ZERO(&m_fdset);
 }
 
 
@@ -22,7 +25,8 @@ int NetModule::start() {
 
     m_network->start();
 
-    m_connectAsynThread.start((Run)running, this);
+    m_acceptAsynThread.start((Run)acceptRunning, this);
+    m_connectAsynThread.start((Run)connectRunning, this);
     return Succeed;
 }
 
@@ -44,7 +48,35 @@ int NetModule::release() {
     return Succeed;
 }
 
-uint32 NetModule::running(NetModule* netModule) {
+uint32 NetModule::acceptRunning(NetModule* netModule) {
+    return netModule->acceptAsynWork();
+}
+
+uint32 NetModule::acceptAsynWork() {
+    struct timeval tv = { 5, 0 };
+
+    fd_set fdset;
+    while (!m_exist) {
+        if (m_maxfd == 0) {
+            Sleep(10);
+            continue;
+        }
+
+        fdset = m_fdset;
+        int ret = ::select(m_maxfd + 1, &fdset, 0, 0, &tv);
+        if (ret > 0) {
+            for (uint32 i = 0; i < m_listenQueue.size(); ++i) {
+                BaseHandler*  handler = m_listenQueue[i];
+                if (FD_ISSET(handler->getSocket(), &fdset)) {
+                    handler->onCanRead();
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+uint32 NetModule::connectRunning(NetModule* netModule) {
     return netModule->connectAsynWork();
 }
 
@@ -75,9 +107,15 @@ bool NetModule::listen(const char *host, Port port, int backlog, NetCallback* ne
     if (sock == SOCKET_ERROR) {
         return false;
     }
-    NetID outid = m_network->addHandler(listenhandler);
+    listenhandler->setNetwork(m_network);
+    listenhandler->setNetId(m_listenQueue.size());
+
+    FD_SET(sock, &m_fdset);
+    m_maxfd = m_maxfd > sock ? m_maxfd : sock;
+    m_listenQueue.push_back(listenhandler);
+
     if (netid) {
-        *netid = outid;
+        *netid = listenhandler->getNetId();
     }
     return true;
 }

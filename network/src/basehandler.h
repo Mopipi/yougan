@@ -11,7 +11,7 @@ public:
         HT_LISTEN,
     };
     BaseHandler(NetCallback *netCallback, JobQueue *jobQueue, SOCKET sock, uint8 handlerType) 
-        : m_netCallback(netCallback), m_jobQueue(jobQueue), m_sock(sock), m_handlerType(handlerType){}
+        : m_netCallback(netCallback), m_jobQueue(jobQueue), m_network(0), m_netid(0), m_sock(sock), m_handlerType(handlerType){}
     virtual ~BaseHandler() {}
 public:
     virtual void onCanRead() {};

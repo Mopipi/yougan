@@ -23,7 +23,7 @@ void TcpHandler::onCanRead(){
             if (err == PI_EWOULDBLOCK) {
                 break;
             }
-            m_network->delHandler(m_netid);
+            m_network->closeByNetid(m_netid);
             return;
         }
 

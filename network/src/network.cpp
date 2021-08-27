@@ -1,14 +1,81 @@
 #include "network.h"
 
-Network::Network():m_quit(true), m_maxfd(0) {
-    Socket::startup();
+struct NetPoll {
+    NetPoll() {
+        m_maxfd = -1;
+        FD_ZERO(&m_rfdset);
+        FD_ZERO(&m_wfdset);
+    }
+    void add(SOCKET sock) {
+        FD_SET(sock, &m_rfdset);
+        m_maxfd = ((m_maxfd) > (int)(sock)) ? (m_maxfd) : (int)(sock);
+    }
+    void del(SOCKET sock) {
+        FD_CLR(sock, &m_rfdset);
+        FD_CLR(sock, &m_wfdset);
 
-    FD_ZERO(&m_rfdset[SelectBak]);
-    FD_ZERO(&m_wfdset[SelectBak]);
+        if (sock == m_maxfd) {
+            m_maxfd = -1;
+            for (uint32 i = 0; i, i < m_rfdset.fd_count; ++i) {
+                sock = m_rfdset.fd_array[i];
+                if ((int)sock > m_maxfd) {
+                    m_maxfd = sock;
+                }
+            }
+        }
+    }
+    void off(NetID netid) {
+        m_offLock.lock();
+        m_offids.push_back(netid);
+        m_offLock.unlock();
+    }
+#ifdef WIN32
+    fd_set m_rfdset;
+    fd_set m_wfdset;
+    int m_maxfd;
+#else
+    SOCKET m_epfd;
+#endif
+    typedef std::vector<NetID> Offid;
+    Offid m_offids;
+    SpinLock m_offLock;
+};
+
+struct NetThread {
+    NetThread(Network *network, NetPoll *netpoll):m_network(network), m_netpoll(netpoll) {
+
+    }
+    ~NetThread() {}
+    void start() {
+        m_thread.start((Run)running, this);
+    }
+
+    static uint32 running(NetThread *netThread) {
+        uint32 ret = netThread->work();
+        delete netThread;
+        return ret;
+    }
+    uint32 work() {
+        return m_network->dispatch(m_netpoll);
+    }
+private:
+    NetPoll* m_netpoll;
+    Network *m_network;
+    Thread m_thread;
+};
+
+Network::Network() :m_quit(true) {
+    Socket::startup();
 }
 
 void Network::start() {
-    m_thread.start((Run)running, this);
+    m_count = 2;
+
+    m_netpolls = new NetPoll[m_count];
+    for (uint32 i = 0; i < m_count; ++i) {
+        NetThread* netThread = new NetThread(this, &m_netpolls[i]);
+        netThread->start();
+    }
 }
 
 NetID Network::addHandler(BaseHandler *handler) {
@@ -20,66 +87,35 @@ NetID Network::addHandler(BaseHandler *handler) {
     handler->setNetwork(this);
     handler->setNetId(netid);
 
-    addSocket(handler->getSocket());
+    NetPoll *poll = &m_netpolls[netid % m_count];
+    poll->add(handler->getSocket());
     m_rwlock.unwlock();
     return netid;
 }
 
-void Network::delHandler(NetID netid) {
-    m_dirtyLock.lock();
-    m_dirtyQueue.push_back(netid);
-    m_dirtyLock.unlock();
+void Network::closeByNetid(NetID netid) {
+    NetPoll *poll = &m_netpolls[netid % m_count];
+    poll->off(netid);
 }
 
-void Network::addSocket(SOCKET sock) {
-#ifdef WIN32
-    FD_SET(sock, &m_rfdset[SelectBak]);
-    m_maxfd = ((m_maxfd) > (int)(sock)) ? (m_maxfd) : (int)(sock);
-#else
-    SOCKET sock_fd = handler->GetSocket();
-    struct epoll_event ev;
-    ev.events = EPOLLIN | EPOLLET;
-    ev.data.ptr = (void *)handler;
-    if (epoll_ctl(m_epfd, EPOLL_CTL_ADD, sock_fd, &ev) == -1)
-    {
-        // Ìí¼ÓÊ§°Ü
-    }
-#endif
-}
+void Network::delHandler(NetPoll *poll) {
+    if (poll->m_offids.size() > 0) {
+        NetPoll::Offid offids;
 
-void Network::delSocket(SOCKET sock) {
-    FD_CLR(sock, &m_rfdset[SelectBak]);
-    FD_CLR(sock, &m_wfdset[SelectBak]);
-
-    if (sock == m_maxfd) {
-        m_maxfd = -1;
-        for (RegisterTableIter iter = m_registerTable.beg(); iter != m_registerTable.end(); ++iter) {
-            sock = iter->handler->getSocket();
-            if (sock > m_maxfd) {
-                m_maxfd = sock;
-            }
-        }
-    }
-}
-
-void Network::dirtySocket() {
-    if (m_dirtyQueue.size() > 0) {
-        DirtyQueue dirtyQueue;
-
-        m_dirtyLock.lock();
-        dirtyQueue.swap(m_dirtyQueue);
-        m_dirtyLock.unlock();
+        poll->m_offLock.lock();
+        offids.swap(poll->m_offids);
+        poll->m_offLock.unlock();
 
         m_rwlock.wlock();
-        for (uint32 i = 0; i < dirtyQueue.size(); ++i) {
-            NetID netid = dirtyQueue[i];
+        for (uint32 i = 0; i < offids.size(); ++i) {
+            NetID netid = offids[i];
             RegisterTableIter iter = m_registerTable.find(netid);
             if (iter != m_registerTable.end()) {
                 BaseHandler* handler = iter->handler;
                 SOCKET sock = handler->getSocket();
                 handler->onClose();
 
-                delSocket(sock);
+                poll->del(sock);
                 m_registerTable.erase(netid);
             }
         }
@@ -87,43 +123,44 @@ void Network::dirtySocket() {
     }
 
 }
-uint32 Network::running(Network* network) {
-    return network->work();
-}
 
-uint32 Network::work() {
-    struct timeval tv = {1, 0};
-
+uint32 Network::dispatch(NetPoll *poll) {
     m_quit = false;
-    while (!m_quit) {
-        dirtySocket();
 
-        if (m_registerTable.size() == 0) {
+    struct timeval tv = { 1, 0 };
+    fd_set rfdset;
+    fd_set wfdset;
+    while (!m_quit) {
+        delHandler(poll);
+
+        rfdset = poll->m_rfdset;
+        wfdset = poll->m_wfdset;
+
+        if (rfdset.fd_count == 0 && wfdset.fd_count == 0) {
             Sleep(10);
             continue;
         }
 
-        m_rfdset[SelectUse] = m_rfdset[SelectBak];
-        m_wfdset[SelectUse] = m_wfdset[SelectBak];
-        int ret = ::select(m_maxfd + 1, &m_rfdset[SelectUse], &m_wfdset[SelectUse], 0, &tv);
+        int ret = ::select(poll->m_maxfd + 1, &rfdset, &wfdset, 0, &tv);
         if (ret > 0) {
-            //m_rwlock.rlock();
+            m_rwlock.rlock();
             for (RegisterTableIter iter = m_registerTable.beg(); iter != m_registerTable.end(); ++iter) {
                 BaseHandler* handler = iter->handler;
                 SOCKET sock = handler->getSocket();
 
-                if (FD_ISSET(sock, &m_rfdset[SelectUse])) {
+                if (FD_ISSET(sock, &rfdset)) {
                     handler->onCanRead();
                 }
-                if (FD_ISSET(sock, &m_wfdset[SelectUse])) {
+                if (FD_ISSET(sock, &wfdset)) {
                     handler->onCanWrite();
                 }
             }
-            //m_rwlock.unrlock();
-        } else if (ret == SOCKET_ERROR && EINTR != WSAGetLastError()) {
+            m_rwlock.unrlock();
+        }
+        else if (ret == SOCKET_ERROR && EINTR != WSAGetLastError()) {
 
         }
     }
-    dirtySocket();
+    delHandler(poll);
     return 0;
 }
