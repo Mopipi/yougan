@@ -3,7 +3,7 @@
 #include "tcphandler.h"
 #include "listenhandler.h"
 
-NetModule::NetModule(char* moduleName):m_exist(true), m_connectAsynQueue(16), m_connectRetQueue(16) {
+NetModule::NetModule(char* moduleName):m_quit(true), m_connectAsynQueue(16), m_connectRetQueue(16) {
     m_network = new Network;
 
     m_maxfd = 0;
@@ -21,7 +21,7 @@ int NetModule::init() {
 }
 
 int NetModule::start() {
-    m_exist = false;
+    m_quit = false;
 
     m_network->start();
 
@@ -56,7 +56,7 @@ uint32 NetModule::acceptAsynWork() {
     struct timeval tv = { 5, 0 };
 
     fd_set fdset;
-    while (!m_exist) {
+    while (!m_quit) {
         if (m_maxfd == 0) {
             Sleep(10);
             continue;
@@ -83,7 +83,7 @@ uint32 NetModule::connectRunning(NetModule* netModule) {
 uint32 NetModule::connectAsynWork() {
     ConnectAsyn asyn;
 
-    while (!m_exist) {
+    while (!m_quit) {
         m_connectAsynQueue.pop(&asyn);
         NetID netid;
         bool result = connect(asyn.host.c_str(), asyn.port, asyn.netkCallback, &netid);

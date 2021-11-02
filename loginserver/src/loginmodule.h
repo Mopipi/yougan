@@ -2,6 +2,7 @@
 #define _LOGIN_MODULE_H_
 
 #include "server.h"
+#include "logmodule.h"
 #include "netmodule.h"
 
 static const char LOGIN_MODULE[] = "LoginModule";

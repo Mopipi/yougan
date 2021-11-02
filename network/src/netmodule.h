@@ -15,7 +15,7 @@ public:
     virtual int update();
     virtual int stop();
     virtual int release();
-public:
+private:
     static uint32 acceptRunning(NetModule* netModule);
     uint32 acceptAsynWork();
 
@@ -57,7 +57,7 @@ private:
     ConnectRetQueue m_connectRetQueue;
     Thread m_connectAsynThread;
 
-    bool m_exist;
+    bool m_quit;
     uint32 m_handle;
     uint32 m_packSize;
     JobQueue *m_jobQueue;

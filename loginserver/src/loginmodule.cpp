@@ -82,6 +82,8 @@ LoginModule::~LoginModule() {
 }
 
 int LoginModule::init() {
+    EXPECT_ON_INIT(LOG_MODULE);
+    LOG_INFO("======LoginModule::init=====");
     return Succeed;
 }
 
