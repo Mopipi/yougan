@@ -3,9 +3,9 @@
 #include "loginmodule.h"
 
 int main(int argc, char *argv[]) {
-    Server server;
-    server.addModel(LOG_MODULE, new LogModule);
+    Server server("login");
     server.addModel(NET_MODULE, new NetModule);
+    server.addModel(LOG_MODULE, new LogModule);
     server.addModel(LOGIN_MODULE, new LoginModule);
   
     server.run();

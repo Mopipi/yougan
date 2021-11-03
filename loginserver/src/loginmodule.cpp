@@ -3,12 +3,12 @@
 class ClientNetCallback : public NetCallback {
 public:
     virtual void onAccept(Port listenPort, NetID netid, Host host, Port port) {
-        printf("ClientNetCallback onAccept %d, %d\n", host, port);
+        LOG_INFO("ClientNetCallback onAccept %d, %d", host, port);
     }
 
     virtual void onRecv(NetID netid, const char *data, int length) {
         uint32 a = *(uint8*)data;
-        printf("%d\n", a);
+        LOG_INFO("%d", a);
     }
 
     virtual void onDisconnect(NetID netid) {
@@ -24,7 +24,7 @@ public:
 class GameNetCallback : public NetCallback {
 public:
     virtual void onAccept(Port listenPort, NetID netid, Host host, Port port) {
-        printf("GameNetCallback onAccept %d, %d\n", host, port);
+        printf("GameNetCallback onAccept %d, %d", host, port);
     }
 
     virtual void onRecv(NetID netid, const char *data, int length) {
@@ -46,7 +46,7 @@ public:
 
     }
     virtual void onAccept(Port listenPort, NetID netid, Host host, Port port) {
-        printf("InnerNetCallback onAccept %d, %d\n", host, port);
+        printf("InnerNetCallback onAccept %d, %d", host, port);
     }
 
     virtual void onRecv(NetID netid, const char *data, int length) {
@@ -58,7 +58,7 @@ public:
             uint32 handle;
             m_netModule->connectAsyn("127.0.0.1", 8005, &handle, this);
         }
-        printf("InnerNetCallback onDisconnect netid = %d\n", netid);
+        LOG_INFO("InnerNetCallback onDisconnect netid = %d", netid);
     }
     virtual void onConnect(bool result, uint32 handle, NetID netid, Host host, Port port) {
         if (result) {
@@ -66,7 +66,7 @@ public:
         } else {
             m_netModule->connectAsyn(host, port, &handle, this);
         }
-        printf("InnerNetCallback onConnect %s\n", (result ? "true" : "false"));
+        LOG_INFO("InnerNetCallback onConnect %s", (result ? "true" : "false"));
     }
 private:
     NetID m_gateid;
@@ -83,7 +83,6 @@ LoginModule::~LoginModule() {
 
 int LoginModule::init() {
     EXPECT_ON_INIT(LOG_MODULE);
-    LOG_INFO("======LoginModule::init=====");
     return Succeed;
 }
 

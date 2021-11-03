@@ -1,9 +1,10 @@
+#include "logmodule.h"
 #include "netmodule.h"
 
 #include "tcphandler.h"
 #include "listenhandler.h"
 
-NetModule::NetModule(char* moduleName):m_quit(true), m_connectAsynQueue(16), m_connectRetQueue(16) {
+NetModule::NetModule(char* moduleName): m_quit(true), m_connectAsynQueue(16), m_connectRetQueue(16) {
     m_network = new Network;
 
     m_maxfd = 0;
@@ -12,6 +13,8 @@ NetModule::NetModule(char* moduleName):m_quit(true), m_connectAsynQueue(16), m_c
 
 
 int NetModule::init() {
+    EXPECT_ON_INIT(LOG_MODULE);
+
     m_mainLoopSem = m_server->getMainLoopSem();
 
     m_packSize = 1024;

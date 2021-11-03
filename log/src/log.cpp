@@ -1,5 +1,6 @@
-#include "log.h"
+#include <time.h>
 
+#include "log.h"
 #include "sysutil.h"
 
 #define LOG_MAX 1024 * 1024
@@ -27,21 +28,37 @@ void Log::setTarget(uint32 target) {
     m_target = target;
 }
 
-void Log::write(uint32 level, const char *str, uint32 len) {
+void Log::write(uint32 level, const char* fmt, ...) {
     if (level < m_level)
         return;
 
     m_lock.lock();
-    if (m_curLen + len >= LOG_MAX) {
 
+    // todo: 超出预设的大小 要重新resize
+    //if (m_curLen + len >= LOG_MAX) {
+
+    //}
+
+    // todo: 时间头根据配置需求
+    int len = 0;
+    if (true) {
+        time_t t = time(0);
+        tm *pTm = localtime(&t);
+        len = strftime(m_write + m_curLen, m_maxWlen, "[%H:%M:%S] ", pTm);
     }
-    ::snprintf(m_write + m_curLen, m_maxWlen, "%s\n", str);
+    va_list args;
+    va_start(args, fmt);
+    len += ::vsnprintf(m_write + m_curLen + len, m_maxWlen, fmt, args);
+    va_end(args);
 
     if (m_enable) {
         m_curLen += len;
+        m_write[m_curLen++] = '\n';
         m_write[m_curLen] = 0;
 
-    } else {
+    }
+    else {
+        m_write[len++] = '\n';
         m_write[len] = 0;
         flush(m_write, len);
     }

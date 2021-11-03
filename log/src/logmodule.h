@@ -36,7 +36,7 @@ private:
 
 extern Log *g_log; //服务器日志
 
-#define LOG_DEBUG(str) g_log->write(LV_DEBUG, str, sizeof(str))
-#define LOG_INFO(str) g_log->write(LV_INFO, str, sizeof(str))
+#define LOG_DEBUG(fmt, ...)  g_log->write(LV_DEBUG, fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...)   g_log->write(LV_INFO, fmt, ##__VA_ARGS__)
 
 #endif

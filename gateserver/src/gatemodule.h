@@ -2,6 +2,7 @@
 #define _GATE_MODULE_H_
 
 #include "server.h"
+#include "logmodule.h"
 #include "netmodule.h"
 
 static const char GATE_MODULE[] = "GateModule";

@@ -12,8 +12,8 @@ enum {
     LV_FATAL,
 };
 
-#define LOG_STDOUT 0x01
-#define LOG_FILE 0x02
+#define LOG_STDOUT  0x01 // жу╤к
+#define LOG_FILE    0x02 // нд╪Ч
 
 class Log {
     DISALLOW_COPY_AND_ASSIGN(Log);
@@ -23,7 +23,7 @@ public:
 public:
     void start();
     void setTarget(uint32 target);
-    void write(uint32 level, const char *str, uint32 len);
+    void write(uint32 level, const char* fmt, ...);
 private:
     friend class LogModule;
     void output();

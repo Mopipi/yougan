@@ -1,11 +1,15 @@
 #include "server.h"
 
-Server::Server():m_exist(false) {
-
+Server::Server(const char *name): m_quit(true) {
+    memcpy(m_name, name, strlen(name) + 1);
 }
 
 Server::~Server() {
 
+}
+
+char* Server::getServerName() {
+    return m_name;
 }
 
 bool Server::addModel(std::string name, Module *module) {
@@ -31,6 +35,7 @@ Semaphore* Server::getMainLoopSem() {
 }
 
 void Server::run() {
+    m_quit = false;
     loop(m_moduleQueue, &Module::init, &m_initModuleQueue, false, Module::ST_Inited, Module::ST_Initing);
     loop(m_initModuleQueue, &Module::start, &m_startModuleQueue, false, Module::ST_Started, Module::ST_Starting);
     loop(m_startModuleQueue, &Module::update, 0, false, Module::ST_Updated, Module::ST_Updating);
@@ -44,12 +49,12 @@ void Server::run() {
 }
 
 void Server::stop() {
-    m_exist = true;
+    m_quit = true;
 }
 
 void Server::loop(ModuleQueue& moduleQueue, Callback cb, ModuleQueue *updateQueue, bool ignore, int succeed, int pending) {
     ModuleQueue loopQueue = moduleQueue;
-    while (!loopQueue.empty() && (ignore || !m_exist)) {
+    while (!loopQueue.empty() && (ignore || !m_quit)) {
         bool wait = false;
         ModuleQueue::iterator iter = loopQueue.begin();
         while (iter != loopQueue.end()) {

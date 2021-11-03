@@ -14,9 +14,10 @@ class Server {
     typedef std::unordered_map<std::string, Module*> ModuleMap;
     typedef std::vector<Module*> ModuleQueue;
 public:
-    Server();
+    Server(const char *name);
     virtual ~Server();
 public:
+    char* getServerName();
     bool addModel(std::string name, Module *module);
     Module* getModel(std::string name);
     Semaphore* getMainLoopSem();
@@ -26,7 +27,8 @@ public:
 private:
     void loop(ModuleQueue& moduleQueue, Callback cb, ModuleQueue *updateQueue, bool ignore, int succeed, int pending);
 private:
-    bool m_exist;
+    bool m_quit;
+    char m_name[32];
     Semaphore m_loopSem;
 
     ModuleQueue m_moduleQueue;

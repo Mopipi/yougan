@@ -6,7 +6,7 @@ public:
 
     }
     virtual void onAccept(Port listenPort, NetID netid, Host host, Port port) {
-        printf("InnerNetCallback onAccept %d, %d\n", host, port);
+        LOG_INFO("InnerNetCallback onAccept %d, %d", host, port);
     }
 
     virtual void onRecv(NetID netid, const char *data, int length) {

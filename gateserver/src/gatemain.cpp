@@ -3,7 +3,8 @@
 #include "gatemodule.h"
 
 int main(int argc, char *argv[]) {
-    Server server;
+    Server server("gate");
+    server.addModel(LOG_MODULE, new LogModule);
     server.addModel(NET_MODULE, new NetModule);
     server.addModel(GATE_MODULE, new GateModule);
 

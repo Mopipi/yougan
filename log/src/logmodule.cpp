@@ -11,7 +11,7 @@ LogModule::~LogModule() {
 }
 
 int LogModule::init() {
-    g_log = create("./log/", "name");
+    g_log = create("./log/", m_server->getServerName());
     g_log->setTarget(LOG_STDOUT | LOG_FILE);
     return Succeed;
 }
@@ -46,6 +46,7 @@ uint32 LogModule::work() {
         for (uint32 i = 0; i < m_count; ++i) {
             m_log[i]->output();
         }
+        Sleep(10);
     }
     return 0;
 }
