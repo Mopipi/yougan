@@ -11,6 +11,7 @@
 #include <process.h>
 #include <ws2tcpip.h>
 #include <unordered_map>
+#include <io.h> /* access(), chmod() */
 
 typedef unsigned __int8     uint8;
 typedef signed __int8       sint8;
@@ -21,7 +22,9 @@ typedef signed __int32      sint32;
 typedef unsigned __int64    uint64;
 typedef signed __int64      sint64;
 typedef unsigned long       ulong;
+
 #elif LINUX
+#include <unistd.h>
 
 typedef uint8_t     uint8;
 typedef __int8_t    sint8;

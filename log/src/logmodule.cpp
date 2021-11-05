@@ -11,7 +11,8 @@ LogModule::~LogModule() {
 }
 
 int LogModule::init() {
-    g_log = create("./log/", m_server->getServerName());
+    // todo: 使用读取配置路径来存放日志，和设置级别
+    g_log = create("log", m_server->getServerName());
     g_log->setTarget(LOG_STDOUT | LOG_FILE);
     return Succeed;
 }

@@ -30,12 +30,17 @@ bool SysUtil::getPathDir(std::string &path) {
 }
 
 bool  SysUtil::makePathDir(std::string &path) {
-    // todo： 绝对路径和path的路径结尾少了驱动分隔符的容错
-    std::string proc;
-    if (!SysUtil::getProcDir(proc)) {
-        return false;
+    if (path[0] != '/' && path[0] != '\\') {
+        std::string proc;
+        if (!SysUtil::getProcDir(proc)) {
+            return false;
+        }
+        path = proc + path;
     }
-    path = proc + path;
+    else {
+        path[0] = DIV_CODE;
+    }
+
     char *last, *token = strtok_s(&path[0], "\\/", &last);
     while (token != 0) {
 #ifdef WIN32
@@ -55,8 +60,15 @@ bool  SysUtil::makePathDir(std::string &path) {
             }
         }
 #endif
-        last[-1] = DIV_CODE;
+        if (*last != 0) {
+            last[-1] = DIV_CODE;
+        }
         token = strtok_s(0, "\\/", &last);
+    }
+    if (last[-1] == 0) {
+        last[-1] = DIV_CODE;
+    } else {
+        path += DIV_CODE;
     }
     return true;
 }

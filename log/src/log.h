@@ -27,6 +27,8 @@ public:
 private:
     friend class LogModule;
     void output();
+    void refile();
+    void close();
     void flush(const char *str, uint32 len);
 private:
     bool m_enable;
@@ -39,6 +41,9 @@ private:
     char *m_write;
     uint32 m_maxOlen;
     char *m_output;
+
+    std::string m_path;
+    std::string m_name;
 
     uint32 m_count;
     FILE *m_file;

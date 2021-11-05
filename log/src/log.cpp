@@ -7,11 +7,18 @@
 
 Log::Log(std::string path, std::string name)
     : m_enable(false), m_target(0), m_level(LV_INFO), m_curLen(0), m_maxWlen(LOG_MAX), m_maxOlen(LOG_MAX), m_count(0), m_file(0) {
+    char file[MAX_PATH] = { 0 };
     if (SysUtil::makePathDir(path)) {
-        char file[MAX_PATH] = {0};
-        sprintf_s(file, "%s%s.log", path.c_str(), name.c_str());
-        m_file = fopen(file, "w+");
+        m_path = path;
+        m_name = name;
+
+        do {
+            m_count++;
+            sprintf_s(file, "%s%s_%d.log", m_path.c_str(), m_name.c_str(), m_count);
+        } while (access(file, 0) == 0);
+        refile();
     }
+
     m_write = new char[m_maxWlen];
     m_output = new char[m_maxOlen];
 }
@@ -81,6 +88,30 @@ void Log::output() {
         m_lock.unlock();
 
         flush(m_output, curLen);
+    }
+}
+
+void Log::refile() {
+    close();
+
+    char oldfile[MAX_PATH] = {0};
+    char newfile[MAX_PATH] = {0};
+
+    for (int i = m_count; i > 1; --i) {
+        sprintf_s(oldfile, "%s%s_%d.log", m_path.c_str(), m_name.c_str(), i - 1);
+        sprintf_s(newfile, "%s%s_%d.log", m_path.c_str(), m_name.c_str(), i);
+        rename(oldfile, newfile);
+    }
+    sprintf_s(oldfile, "%s%s_1.log", m_path.c_str(), m_name.c_str());
+    sprintf_s(newfile, "%s%s.log", m_path.c_str(), m_name.c_str());
+    rename(newfile, oldfile);
+    m_file = fopen(newfile, "w+");
+}
+
+void Log::close() {
+    if (m_file != 0) {
+        fclose(m_file);
+        m_file = 0;
     }
 }
 
