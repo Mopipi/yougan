@@ -1,5 +1,8 @@
 #include "loginmodule.h"
 
+// eg:
+Log *g_money = 0;
+
 class ClientNetCallback : public NetCallback {
 public:
     virtual void onAccept(Port listenPort, NetID netid, Host host, Port port) {
@@ -83,6 +86,11 @@ LoginModule::~LoginModule() {
 
 int LoginModule::init() {
     EXPECT_ON_INIT(LOG_MODULE);
+
+    LogModule *logModule = dynamic_cast<LogModule*>(getServer()->getModel(LOG_MODULE));
+    // eg:
+    g_money = logModule->create("monery", "yuanbao");
+    g_money->setTarget(LOG_FILE);
     return Succeed;
 }
 
@@ -105,6 +113,9 @@ int LoginModule::start() {
 
     uint32 handle;
     m_netModule->connectAsyn("127.0.0.1", 8005, &handle, innerNetworkCallBack);
+
+    // eg:
+    g_money->write(LV_INFO, "id:%d,type:%d,count:%d", 1001, 1, 50);
     return Succeed;
 }
 

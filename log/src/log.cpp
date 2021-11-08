@@ -131,12 +131,12 @@ void Log::close() {
 }
 
 void Log::flush(const char *str, uint32 len) {
-    if (m_target | LOG_STDOUT) {
+    if (m_target & LOG_STDOUT) {
         printf("%s", str);
         fflush(stdout);
     }
 
-    if (m_target | LOG_FILE) {
+    if (m_target & LOG_FILE) {
         fwrite(str, sizeof(char), len, m_file);
         fflush(m_file);
     }
