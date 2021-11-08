@@ -45,7 +45,7 @@ private:
     std::string m_path;
     std::string m_name;
 
-    uint32 m_count;
+    uint32 m_fsize;
     FILE *m_file;
 };
 
