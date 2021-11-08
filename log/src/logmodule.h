@@ -22,7 +22,7 @@ public:
     virtual int stop();
     virtual int release();
 public:
-    Log* create(const char *path, const char *name);
+    Log* create(const char *path, const char *name, int mode = FILE_REOPEN);
 private:
     static uint32 running(LogModule* logModule);
     uint32 work();

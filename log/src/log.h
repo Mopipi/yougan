@@ -12,13 +12,18 @@ enum {
     LV_FATAL,
 };
 
+enum {
+    FILE_REOPEN, //新开文件
+    FILE_APPEND,// 追加文件
+};
+
 #define LOG_STDOUT  0x01 // 终端
 #define LOG_FILE    0x02 // 文件
 
 class Log {
     DISALLOW_COPY_AND_ASSIGN(Log);
 public:
-    Log(std::string path, std::string name);
+    Log(std::string path, std::string name, int mode);
     ~Log();
 public:
     void start();
@@ -27,6 +32,7 @@ public:
 private:
     friend class LogModule;
     void output();
+    void fopen();
     void refile();
     void close();
     void flush(const char *str, uint32 len);
@@ -45,6 +51,8 @@ private:
     std::string m_path;
     std::string m_name;
 
+    uint32 m_mode;
+    uint32 m_count;
     uint32 m_fsize;
     FILE *m_file;
 };

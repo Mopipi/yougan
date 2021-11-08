@@ -89,7 +89,7 @@ int LoginModule::init() {
 
     LogModule *logModule = dynamic_cast<LogModule*>(getServer()->getModel(LOG_MODULE));
     // eg:
-    g_money = logModule->create("monery", "yuanbao");
+    g_money = logModule->create("monery", "yuanbao", FILE_APPEND);
     g_money->setTarget(LOG_FILE);
     return Succeed;
 }

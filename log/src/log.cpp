@@ -7,19 +7,14 @@
 #define LOG_FILE_SUM 10
 #define LOG_FILE_SIZE 20 * LOG_BUF_MAX
 
-Log::Log(std::string path, std::string name)
-    : m_enable(false), m_target(0), m_level(LV_INFO), m_curLen(0), m_maxWlen(LOG_BUF_MAX), m_maxOlen(LOG_BUF_MAX), m_fsize(0), m_file(0) {
+Log::Log(std::string path, std::string name, int mode)
+    : m_enable(false), m_target(0), m_level(LV_INFO), m_curLen(0), m_maxWlen(LOG_BUF_MAX), m_maxOlen(LOG_BUF_MAX)
+    , m_mode(mode), m_count(LOG_FILE_SUM), m_fsize(0), m_file(0) {
     char file[MAX_PATH] = { 0 };
     if (SysUtil::makePathDir(path)) {
         m_path = path;
         m_name = name;
-
-        // ¼ÇÂ¼
-        //do {
-        //    m_count++;
-        //    sprintf_s(file, "%s%s_%d.log", m_path.c_str(), m_name.c_str(), m_count);
-        //} while (access(file, 0) == 0);
-        refile();
+        fopen();
     }
 
     m_write = new char[m_maxWlen];
@@ -100,6 +95,23 @@ void Log::output() {
         m_fsize = ftell(m_file);
     }
 }
+void Log::fopen() {
+    if (m_mode) {
+        char file[MAX_PATH] = {0};
+        int count = 0;
+        do {
+            m_count = count++;
+            sprintf_s(file, "%s%s_%d.log", m_path.c_str(), m_name.c_str(), count);
+        } while (access(file, 0) == 0);
+
+        sprintf_s(file, "%s%s.log", m_path.c_str(), m_name.c_str());
+        m_file = ::fopen(file, "a+");
+        fseek(m_file, 0, SEEK_END);
+        m_fsize = ftell(m_file);
+    } else {
+        refile();
+    }
+}
 
 void Log::refile() {
     close();
@@ -107,9 +119,13 @@ void Log::refile() {
     char oldfile[MAX_PATH] = {0};
     char newfile[MAX_PATH] = {0};
 
-    sprintf_s(oldfile, "%s%s_%d.log", m_path.c_str(), m_name.c_str(), LOG_FILE_SUM);
+    if (m_mode) {
+        m_count += 1;
+    }
+    sprintf_s(oldfile, "%s%s_%d.log", m_path.c_str(), m_name.c_str(), m_count);
     remove(oldfile);
-    for (int i = LOG_FILE_SUM; i > 1; --i) {
+
+    for (int i = m_count; i > 1; --i) {
         sprintf_s(oldfile, "%s%s_%d.log", m_path.c_str(), m_name.c_str(), i - 1);
         sprintf_s(newfile, "%s%s_%d.log", m_path.c_str(), m_name.c_str(), i);
         rename(oldfile, newfile);
@@ -118,7 +134,7 @@ void Log::refile() {
     sprintf_s(newfile, "%s%s.log", m_path.c_str(), m_name.c_str());
     rename(newfile, oldfile);
 
-    m_file = fopen(newfile, "w+");
+    m_file = ::fopen(newfile, "w+");
     fseek(m_file, 0, SEEK_END);
     m_fsize = ftell(m_file);
 }

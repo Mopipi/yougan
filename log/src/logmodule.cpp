@@ -52,8 +52,8 @@ uint32 LogModule::work() {
     return 0;
 }
 
-Log* LogModule::create(const char *path, const char *name) {
-    Log *log = new Log(path, name);
+Log* LogModule::create(const char *path, const char *name, int mode) {
+    Log *log = new Log(path, name, mode);
     m_log[m_count++] = log;
     return log;
 }
