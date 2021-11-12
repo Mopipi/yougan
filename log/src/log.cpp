@@ -3,6 +3,8 @@
 #include "log.h"
 #include "sysutil.h"
 
+#pragma warning(disable:4996)
+
 #define LOG_BUF_MAX 1024 * 1024
 #define LOG_FILE_SUM 10
 #define LOG_FILE_SIZE 20 * LOG_BUF_MAX

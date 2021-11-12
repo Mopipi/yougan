@@ -47,7 +47,7 @@ uint32 LogModule::work() {
         for (uint32 i = 0; i < m_count; ++i) {
             m_log[i]->output();
         }
-        Sleep(10);
+        msleep(10);
     }
     return 0;
 }

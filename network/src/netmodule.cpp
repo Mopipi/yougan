@@ -61,7 +61,7 @@ uint32 NetModule::acceptAsynWork() {
     fd_set fdset;
     while (!m_quit) {
         if (m_maxfd == 0) {
-            Sleep(10);
+            msleep(10);
             continue;
         }
 

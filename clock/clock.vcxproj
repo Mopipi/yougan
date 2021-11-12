@@ -18,23 +18,16 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\loginmain.cpp" />
-    <ClCompile Include="src\loginmodule.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\loginmodule.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{1E20C0A2-EE8B-46E8-A952-ADC2ED3054B4}</ProjectGuid>
+    <ProjectGuid>{15820F4A-7F21-4203-A9F1-F266E3BA35B8}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>loginserver</RootNamespace>
+    <RootNamespace>clock</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -97,14 +90,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\3rd\lua-5.3.6\src;..\common\src;..\clock\src;..\log\src;..\network\src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\common\src;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>lua-5.3.6.lib;common.lib;clock.lib;log.lib;network.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -151,6 +142,12 @@
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\clcokmodule.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\clockmodule.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

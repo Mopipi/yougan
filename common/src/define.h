@@ -23,6 +23,8 @@ typedef unsigned __int64    uint64;
 typedef signed __int64      sint64;
 typedef unsigned long       ulong;
 
+#define msleep(ms)  Sleep(ms)
+
 #elif LINUX
 #include <unistd.h>
 
@@ -36,6 +38,7 @@ typedef uint64_t    uint64;
 typedef __int64_t   sint64;
 typedef int         SOCKET;
 
+#define msleep(ms)  usleep(ms * 1000)
 #define GetCurrentThreadId() syscall(SYS_gettid)
 #endif
 

@@ -137,7 +137,7 @@ uint32 Network::dispatch(NetPoll *poll) {
         wfdset = poll->m_wfdset;
 
         if (rfdset.fd_count == 0 && wfdset.fd_count == 0) {
-            Sleep(10);
+            msleep(10);
             continue;
         }
 
