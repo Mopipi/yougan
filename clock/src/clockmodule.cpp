@@ -2,6 +2,130 @@
 
 #include "clockmodule.h"
 
+const static uint32 timeWheelCount = 4;
+
+const static uint32 timeNearBit = 8;
+const static uint32 timeNear = 1 << timeNearBit;
+const static uint32 timeNearMask = timeNear - 1;
+
+const static uint32 timeSlotBit = 6;
+const static uint32 timeSlot = 1 << timeSlotBit;
+const static uint32 timeSlotMask = timeSlot - 1;
+
+struct TmCall {
+    uint32 expire;
+    TimerCall *call;
+    TmCall *next;
+    TmCall *prev;
+};
+
+struct TmList {
+    TmCall head;
+    TmCall *tail;
+
+    TmList() {
+        clr();
+    }
+
+    TmCall* clr() {
+        TmCall *tmCall = head.next;
+        head.next = 0;
+        head.prev = 0;
+        tail = &head;
+        return tmCall;
+    }
+
+    void swap(TmList* tmList) {
+        tmList->head.next = head.next;
+        tmList->tail = tail;
+        clr();
+    }
+
+    void add(TmCall *call) {
+        call->next = 0;
+        call->prev = tail;
+        tail->next = call;
+        tail = call;
+    }
+
+    void del(TmCall *call) {
+        if (call->next) {
+            call->next->prev = call->prev;
+        }
+        else {
+            tail = call->prev;
+        }
+        call->prev->next = call->next;
+        call->next = 0;
+        call->prev = 0;
+    }
+
+};
+
+struct Timer {
+    uint32 tick;
+    uint32 lastTick;
+    TmList tmWork;
+    TmList tmNear[timeNear];
+    TmList tmSlot[timeWheelCount][timeSlot];
+    Timer() :tick(0), lastTick(0) {
+    }
+
+    void add(TmCall *call) {
+        uint32 expire = call->expire;
+        if ((expire | timeNearMask) == (tick | timeNearMask)) {
+            tmNear[expire&timeNearMask].add(call);
+        } else {
+            uint32 mask = timeNear << timeSlotBit;
+            for (int i = 0; i < timeWheelCount; ++i) {
+                if ((expire | (mask - 1)) == (tick | (mask - 1))) {
+                    tmSlot[i][expire >> (timeNearBit + i * timeSlotBit)].add(call);
+                    break;
+                }
+                mask <<= timeSlotBit;
+            }
+        }
+    }
+
+    void push() {
+        TmList *tmList = &tmNear[tick & timeNearMask];
+        TmCall *tmCall = tmList->head.next;
+        while (tmCall) {
+            tmWork.add(tmCall);
+            tmList->del(tmCall);
+            tmCall = tmList->head.next;
+        }
+    }
+
+    void move(uint32 wheel, uint32 slot) {
+        TmCall *tmCall = tmSlot[wheel][slot].clr();
+        while (tmCall) {
+            TmCall *next = tmCall->next;
+            add(tmCall);
+            tmCall = next;
+        }
+    }
+
+    void shift() {
+        uint32 now = ++tick;
+        if (now) {
+            uint32 mask = timeNear;
+            uint32 time = now >> timeNearBit;
+            for (uint32 i = 0; ((now & (mask - 1)) == 0); ++i) {
+                uint32 slot = time & timeSlotMask;
+                if (slot) {
+                    move(i, slot);
+                    break;
+                }
+                mask <<= timeSlotBit;
+                time >>= timeSlotBit;
+            }
+        } else {
+            move(3, 0);
+        }
+    }
+};
+
 ClockModule::ClockModule(): m_utcTime(0), m_fps(0), m_fpsMs(1000/30), m_frameCount(0), m_frameTick(0) {
 
 }
@@ -11,22 +135,36 @@ ClockModule::~ClockModule() {
 }
 
 int ClockModule::init() {
+    m_timer = new Timer;
     return Succeed;
 }
 
 int ClockModule::start() {
+    m_timer->lastTick = GetTickTime();
     m_thread.start((Run)running, this);
     return Succeed;
 }
 
 int ClockModule::update() {
-    uint32 newtick = getTickTime();
-    uint32 diff = newtick - m_frameTick;
+    uint32 nowtick = GetTickTime();
+    uint32 diff = nowtick - m_frameTick;
     if (m_fpsMs <= diff) {
         m_frameCount++;
-        m_frameTick = newtick;
+        m_frameTick = nowtick;
+    }
 
-        m_utcTime = (uint32)time(0);
+    if (m_timer->tmWork.head.next) {
+        m_lock.lock();
+        TmList tmWork;
+        m_timer->tmWork.swap(&tmWork);
+        m_lock.unlock();
+
+        while (tmWork.head.next) {
+            TmCall *tmCall = tmWork.head.next;
+            tmCall->call->onTimeout();
+            tmWork.del(tmCall);
+            delete tmCall;
+        }
     }
     return Pending;
 }
@@ -43,13 +181,38 @@ uint32 ClockModule::getUtcTime() {
     return m_utcTime;
 }
 
-uint32 ClockModule::getTickTime() {
-#ifdef WIN32
-    //return timeGetTime(); // 使用timeGetTime() 震动频率更小，但没必要, 只做记录
-    return GetTickCount();
-#else
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
-#endif
+uint32 ClockModule::timerAdd(TimerCall * call, uint32 ms) {
+    TmCall *tmCall = new TmCall;
+    tmCall->call = call;
+    tmCall->expire = ms + m_timer->tick;
+
+    m_lock.lock();
+    m_timer->add(tmCall);
+    m_lock.unlock();
+    return 0;
+}
+
+uint32 ClockModule::running(ClockModule* clockModule) {
+    return clockModule->work();
+}
+
+uint32 ClockModule::work() {
+    m_quit = false;
+
+    while (!m_quit) {
+        m_utcTime = (uint32)time(0);
+
+        uint32 now = GetTickTime();
+        uint32 diff = now - m_timer->lastTick;
+
+        for (uint32 i = 0; i < diff; ++i) {
+            m_lock.lock();
+            m_timer->push();
+            m_timer->shift();
+            m_timer->push();
+            m_lock.unlock();
+        }
+        msleep(10);
+    }
+    return 0;
 }

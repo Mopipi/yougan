@@ -1,6 +1,7 @@
 #ifndef _SERSER_H_
 #define _SERSER_H_
 
+#include "os.h"
 #include "module.h"
 #include "synclock.h"
 

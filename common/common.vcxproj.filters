@@ -33,6 +33,9 @@
     <ClInclude Include="src\sysutil.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\os.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\synclock.cpp">
@@ -45,6 +48,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\sysutil.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\os.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

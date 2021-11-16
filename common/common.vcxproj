@@ -153,6 +153,7 @@
     <ClInclude Include="src\atomic.h" />
     <ClInclude Include="src\define.h" />
     <ClInclude Include="src\module.h" />
+    <ClInclude Include="src\os.h" />
     <ClInclude Include="src\raobjlist.h" />
     <ClInclude Include="src\server.h" />
     <ClInclude Include="src\synclock.h" />
@@ -161,6 +162,7 @@
     <ClInclude Include="src\threadqueue.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\os.cpp" />
     <ClCompile Include="src\server.cpp" />
     <ClCompile Include="src\synclock.cpp" />
     <ClCompile Include="src\sysutil.cpp" />

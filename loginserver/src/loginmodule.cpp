@@ -76,6 +76,14 @@ private:
     NetModule * m_netModule;
 };
 
+// eg: timer
+class TestTimer : public TimerCall {
+public:
+    virtual void onTimeout() {
+        LOG_DEBUG("=======TestTimer:onTimeout=======");
+    }
+};
+
 LoginModule::LoginModule() {
 
 }
@@ -116,6 +124,9 @@ int LoginModule::start() {
 
     // eg:
     g_money->write(LV_INFO, "id:%d,type:%d,count:%d", 1001, 1, 50);
+
+    ClockModule *clock = dynamic_cast<ClockModule*>(getServer()->getModel(CLOCK_MODULE));
+    clock->timerAdd(new TestTimer, 1000 * 10);
     return Succeed;
 }
 

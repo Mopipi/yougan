@@ -2,10 +2,21 @@
 #define _CLOCK_MODULE_H_
 
 #include "server.h"
-
-#include "timer.h"
+#include "thread.h"
+#include "synclock.h"
 
 static const char CLOCK_MODULE[] = "ClcokModule";
+
+class TimerCall {
+    DISALLOW_COPY_AND_ASSIGN(TimerCall);
+public:
+    TimerCall() {}
+    virtual ~TimerCall() {}
+public:
+    virtual void onTimeout() = 0;
+};
+
+struct Timer;
 
 class ClockModule : public Module {
     DISALLOW_COPY_AND_ASSIGN(ClockModule);
@@ -20,9 +31,15 @@ public:
     virtual int release();
 public:
     uint32 getUtcTime();
-    uint32 getTickTime();
+public:
+    uint32 timerAdd(TimerCall * call, uint32 ms);
 private:
-    Timer m_tiemr;
+    static uint32 running(ClockModule* clockModule);
+    uint32 work();
+private:
+    bool m_quit;
+    Thread m_thread;
+    SpinLock m_lock;
 
     uint32 m_utcTime;
 
@@ -30,5 +47,8 @@ private:
     uint32 m_fpsMs;
     uint32 m_frameCount;
     uint32 m_frameTick;
+
+    // ¶¨Ê±Æ÷
+    Timer *m_timer;
 };
 #endif
