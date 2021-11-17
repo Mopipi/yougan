@@ -1,5 +1,6 @@
 #include <time.h>
 
+#include "logmodule.h"
 #include "clockmodule.h"
 
 const static uint32 timeWheelCount = 4;
@@ -16,46 +17,46 @@ struct TmCall {
     uint32 expire;
     TimerCall *call;
     TmCall *next;
-    TmCall *prev;
+    TmCall **prev;
 };
 
 struct TmList {
-    TmCall head;
-    TmCall *tail;
+    TmCall *head;
+    TmCall **tail;
 
     TmList() {
         clr();
     }
 
     TmCall* clr() {
-        TmCall *tmCall = head.next;
-        head.next = 0;
-        head.prev = 0;
+        TmCall *tmCall = head;
+        head = 0;
         tail = &head;
         return tmCall;
     }
 
     void swap(TmList* tmList) {
-        tmList->head.next = head.next;
-        tmList->tail = tail;
-        clr();
+        while (head) {
+            TmCall *tmCall = head;
+            del(tmCall);
+            tmList->add(tmCall);
+        }
     }
 
     void add(TmCall *call) {
         call->next = 0;
         call->prev = tail;
-        tail->next = call;
-        tail = call;
+        *tail = call;
+        tail = &call->next;
     }
 
     void del(TmCall *call) {
         if (call->next) {
             call->next->prev = call->prev;
-        }
-        else {
+        } else {
             tail = call->prev;
         }
-        call->prev->next = call->next;
+        *call->prev = call->next;
         call->next = 0;
         call->prev = 0;
     }
@@ -89,11 +90,11 @@ struct Timer {
 
     void push() {
         TmList *tmList = &tmNear[tick & timeNearMask];
-        TmCall *tmCall = tmList->head.next;
+        TmCall *tmCall = tmList->head;
         while (tmCall) {
-            tmWork.add(tmCall);
             tmList->del(tmCall);
-            tmCall = tmList->head.next;
+            tmWork.add(tmCall);
+            tmCall = tmList->head;
         }
     }
 
@@ -135,6 +136,8 @@ ClockModule::~ClockModule() {
 }
 
 int ClockModule::init() {
+    EXPECT_ON_INIT(LOG_MODULE);
+
     m_timer = new Timer;
     return Succeed;
 }
@@ -153,14 +156,14 @@ int ClockModule::update() {
         m_frameTick = nowtick;
     }
 
-    if (m_timer->tmWork.head.next) {
+    if (m_timer->tmWork.head) {
         m_lock.lock();
         TmList tmWork;
         m_timer->tmWork.swap(&tmWork);
         m_lock.unlock();
 
-        while (tmWork.head.next) {
-            TmCall *tmCall = tmWork.head.next;
+        while (tmWork.head) {
+            TmCall *tmCall = tmWork.head;
             tmCall->call->onTimeout();
             tmWork.del(tmCall);
             delete tmCall;
@@ -183,10 +186,9 @@ uint32 ClockModule::getUtcTime() {
 
 uint32 ClockModule::timerAdd(TimerCall * call, uint32 ms) {
     TmCall *tmCall = new TmCall;
+    m_lock.lock();
     tmCall->call = call;
     tmCall->expire = ms + m_timer->tick;
-
-    m_lock.lock();
     m_timer->add(tmCall);
     m_lock.unlock();
     return 0;
@@ -204,7 +206,6 @@ uint32 ClockModule::work() {
 
         uint32 now = GetTickTime();
         uint32 diff = now - m_timer->lastTick;
-
         for (uint32 i = 0; i < diff; ++i) {
             m_lock.lock();
             m_timer->push();
@@ -212,6 +213,7 @@ uint32 ClockModule::work() {
             m_timer->push();
             m_lock.unlock();
         }
+        m_timer->lastTick = now;
         msleep(10);
     }
     return 0;

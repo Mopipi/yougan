@@ -79,9 +79,19 @@ private:
 // eg: timer
 class TestTimer : public TimerCall {
 public:
-    virtual void onTimeout() {
-        LOG_DEBUG("=======TestTimer:onTimeout=======");
+    TestTimer(ClockModule *clock) : m_clock(clock) {
+
     }
+    virtual void onTimeout() {
+        LOG_INFO("=======TestTimer:onTimeout=======");
+        call();
+    }
+public:
+    void call() {
+        m_clock->timerAdd(new TestTimer(m_clock), 1000 * 5);
+    }
+private:
+    ClockModule * m_clock;
 };
 
 LoginModule::LoginModule() {
@@ -126,7 +136,8 @@ int LoginModule::start() {
     g_money->write(LV_INFO, "id:%d,type:%d,count:%d", 1001, 1, 50);
 
     ClockModule *clock = dynamic_cast<ClockModule*>(getServer()->getModel(CLOCK_MODULE));
-    clock->timerAdd(new TestTimer, 1000 * 10);
+    TestTimer *timer = new TestTimer(clock);
+    timer->call();
     return Succeed;
 }
 
