@@ -12,6 +12,7 @@
 #include <ws2tcpip.h>
 #include <unordered_map>
 #include <io.h> /* access(), chmod() */
+#include <mmsystem.h> /* timeGetTime() */
 
 typedef unsigned __int8     uint8;
 typedef signed __int8       sint8;
