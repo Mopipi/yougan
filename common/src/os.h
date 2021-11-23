@@ -4,7 +4,7 @@
 #include "define.h"
 
 // 获取机器启动时间毫秒
-uint32 GetTickTime();
+uint64 GetTickTime();
 
 
 #endif

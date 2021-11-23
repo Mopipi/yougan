@@ -32,7 +32,7 @@ public:
 public:
     uint32 getUtcTime();
 public:
-    uint32 timerAdd(TimerCall * call, uint32 ms);
+    uint32 timerAdd(TimerCall * call, uint64 ms);
 private:
     static uint32 running(ClockModule* clockModule);
     uint32 work();
@@ -46,7 +46,7 @@ private:
     uint32 m_fps;
     uint32 m_fpsMs;
     uint32 m_frameCount;
-    uint32 m_frameTick;
+    uint64 m_frameTick;
 
     // ¶¨Ê±Æ÷
     Timer *m_timer;

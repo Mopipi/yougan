@@ -1,6 +1,6 @@
 #include "os.h"
 
-uint32 GetTickTime() {
+uint64 GetTickTime() {
 #ifdef WIN32
     return timeGetTime(); // timeGetTime() 震动频率更小精确
     //return GetTickCount(); // GetTickCount() 不精确，会因为sleep()使cpu频率停止而停止

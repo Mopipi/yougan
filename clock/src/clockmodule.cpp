@@ -14,7 +14,7 @@ const static uint32 timeSlot = 1 << timeSlotBit;
 const static uint32 timeSlotMask = timeSlot - 1;
 
 struct TmCall {
-    uint32 expire;
+    uint64 expire;
     TimerCall *call;
     TmCall *next;
     TmCall **prev;
@@ -66,7 +66,7 @@ struct TmList {
 
 struct Timer {
     uint32 tick;
-    uint32 lastTick;
+    uint64 lastTick;
     TmList tmWork;
     TmList tmNear[timeNear];
     TmList tmSlot[timeWheelCount][timeSlot];
@@ -74,20 +74,21 @@ struct Timer {
     }
 
     void add(TmCall *call) {
-        uint32 expire = call->expire;
+        uint64 expire = call->expire;
         if ((expire | timeNearMask) == (tick | timeNearMask)) {
             //LOG_INFO("========Timer===tmNear===, %d, %d, %d", expire, tick, (expire&timeNearMask));
             tmNear[expire&timeNearMask].add(call);
         } else {
             uint32 mask = timeNear << timeSlotBit;
-            for (int i = 0; i < timeWheelCount; ++i) {
+            uint32 i = 0;
+            for (; i < timeWheelCount - 1; ++i) {
                 if ((expire | (mask - 1)) == (tick | (mask - 1))) {
                     //LOG_INFO("========Timer===tmSlot===, %d, %d, %d, %d, %d", expire, tick, mask, (expire >> (timeNearBit + i * timeSlotBit)), i);
-                    tmSlot[i][(expire >> (timeNearBit + i * timeSlotBit)) & timeSlotMask].add(call);
                     break;
                 }
                 mask <<= timeSlotBit;
             }
+            tmSlot[i][(expire >> (timeNearBit + i * timeSlotBit)) & timeSlotMask].add(call);
         }
     }
 
@@ -104,6 +105,9 @@ struct Timer {
         while (tmCall) {
             //LOG_INFO("=========move=======,%d, %d, %d", tick, wheel, slot);
             TmCall *next = tmCall->next;
+            if (tmCall->expire >= 0x100000000) {
+                tmCall->expire -= 0x100000000;
+            }
             add(tmCall);
             tmCall = next;
         }
@@ -151,8 +155,8 @@ int ClockModule::start() {
 }
 
 int ClockModule::update() {
-    uint32 nowtick = GetTickTime();
-    uint32 diff = nowtick - m_frameTick;
+    uint64 nowtick = GetTickTime();
+    uint32 diff = (uint32)(nowtick - m_frameTick);
     if (m_fpsMs <= diff) {
         m_frameCount++;
         m_frameTick = nowtick;
@@ -186,7 +190,7 @@ uint32 ClockModule::getUtcTime() {
     return m_utcTime;
 }
 
-uint32 ClockModule::timerAdd(TimerCall * call, uint32 ms) {
+uint32 ClockModule::timerAdd(TimerCall * call, uint64 ms) {
     TmCall *tmCall = new TmCall;
     m_lock.lock();
     tmCall->call = call;
@@ -207,9 +211,9 @@ uint32 ClockModule::work() {
     while (!m_quit) {
         m_utcTime = (uint32)time(0);
 
-        uint32 now = GetTickTime();
+        uint64 now = GetTickTime();
         if (now != m_timer->lastTick) {
-            uint32 diff = now - m_timer->lastTick;
+            uint32 diff = (uint32)(now - m_timer->lastTick);
             for (uint32 i = 0; i < diff; ++i) {
                 m_lock.lock();
                 m_timer->push();
