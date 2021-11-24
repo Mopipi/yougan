@@ -13,6 +13,8 @@ const static uint32 timeSlotBit = 6;
 const static uint32 timeSlot = 1 << timeSlotBit;
 const static uint32 timeSlotMask = timeSlot - 1;
 
+const static uint32 timeMaskMax = 0xffffffff;
+
 struct TmCall {
     uint64 expire;
     TimerCall *call;
@@ -65,7 +67,7 @@ struct TmList {
 };
 
 struct Timer {
-    uint32 tick;
+    uint64 tick;
     uint64 lastTick;
     TmList tmWork;
     TmList tmNear[timeNear];
@@ -105,19 +107,16 @@ struct Timer {
         while (tmCall) {
             //LOG_INFO("=========move=======,%d, %d, %d", tick, wheel, slot);
             TmCall *next = tmCall->next;
-            if (tmCall->expire >= 0x100000000) {
-                tmCall->expire -= 0x100000000;
-            }
             add(tmCall);
             tmCall = next;
         }
     }
 
     void shift() {
-        uint32 now = ++tick;
-        if (now) {
+        uint64 now = ++tick;
+        if (now & timeMaskMax) {
             uint32 mask = timeNear;
-            uint32 time = now >> timeNearBit;
+            uint64 time = now >> timeNearBit;
             for (uint32 i = 0; ((now & (mask - 1)) == 0); ++i) {
                 uint32 slot = time & timeSlotMask;
                 if (slot) {
@@ -212,17 +211,15 @@ uint32 ClockModule::work() {
         m_utcTime = (uint32)time(0);
 
         uint64 now = GetTickTime();
-        if (now != m_timer->lastTick) {
-            uint32 diff = (uint32)(now - m_timer->lastTick);
-            for (uint32 i = 0; i < diff; ++i) {
-                m_lock.lock();
-                m_timer->push();
-                m_timer->shift();
-                m_timer->push();
-                m_lock.unlock();
-            }
-            m_timer->lastTick = now;
+        int diff = (int)(now - m_timer->lastTick);
+        for (int i = 0; i < diff; ++i) {
+            m_lock.lock();
+            m_timer->push();
+            m_timer->shift();
+            m_timer->push();
+            m_lock.unlock();
         }
+        m_timer->lastTick = now;
         msleep(10);
     }
     return 0;
