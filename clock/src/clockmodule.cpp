@@ -82,15 +82,18 @@ struct Timer {
             tmNear[expire&timeNearMask].add(call);
         } else {
             uint32 mask = timeNear << timeSlotBit;
-            uint32 i = 0;
-            for (; i < timeWheelCount - 1; ++i) {
+            for (uint32 i = 0; i < timeWheelCount; ++i) {
                 if ((expire | (mask - 1)) == (tick | (mask - 1))) {
                     //LOG_INFO("========Timer===tmSlot===, %d, %d, %d, %d, %d", expire, tick, mask, (expire >> (timeNearBit + i * timeSlotBit)), i);
+                    tmSlot[i][(expire >> (timeNearBit + i * timeSlotBit)) & timeSlotMask].add(call);
+                    break;
+                }
+                if (mask == 0) {
+                    tmSlot[i][0].add(call);
                     break;
                 }
                 mask <<= timeSlotBit;
             }
-            tmSlot[i][(expire >> (timeNearBit + i * timeSlotBit)) & timeSlotMask].add(call);
         }
     }
 
