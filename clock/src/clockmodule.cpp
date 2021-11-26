@@ -130,7 +130,10 @@ struct Timer {
                 time >>= timeSlotBit;
             }
         } else {
-            move(3, 0);
+            // 超出时间最大值回绕后会记录在各自slot的0位置里，所以要取出各自slot的0队列重新设置
+            for (uint32 i = 0; i < timeWheelCount; ++i) {
+                move(i, 0);
+            }
         }
     }
 };
