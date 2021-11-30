@@ -97,14 +97,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\3rd\lua-5.3.6\src;..\common\src;..\clock\src;..\log\src;..\network\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\3rd\lua-5.3.6\src;..\3rd\lua5.3-luatinker;..\common\src;..\clock\src;..\log\src;..\network\src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>lua-5.3.6.lib;common.lib;clock.lib;log.lib;network.lib</AdditionalDependencies>
+      <AdditionalDependencies>lua-5.3.6.lib;lua5.3-luatinker.lib;common.lib;clock.lib;log.lib;network.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
