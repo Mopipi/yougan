@@ -10,7 +10,17 @@ public:
     }
 
     virtual void onRecv(NetID netid, const char *data, int length) {
+        // eg:
+        struct test {
+            int a;
+            int b;
+        };
+        test *t = (struct test*)data;
+        LOG_INFO("InnerNetCallback::onRecv data { int a = %d; int b = %d}", t->a, t->b);
 
+        t->a = 99;
+        t->b = 66;
+        m_netModule->send(netid, t, sizeof(test));
     }
 
     virtual void onDisconnect(NetID netid) {

@@ -36,6 +36,9 @@
     <ClInclude Include="src\os.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\luamodule.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\synclock.cpp">
@@ -51,6 +54,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\os.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\luamodule.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

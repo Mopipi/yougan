@@ -18,11 +18,38 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LuaBridge\Array.h" />
+    <ClInclude Include="LuaBridge\detail\CFunctions.h" />
+    <ClInclude Include="LuaBridge\detail\ClassInfo.h" />
+    <ClInclude Include="LuaBridge\detail\Config.h" />
+    <ClInclude Include="LuaBridge\detail\Constructor.h" />
+    <ClInclude Include="LuaBridge\detail\dump.h" />
+    <ClInclude Include="LuaBridge\detail\FuncTraits.h" />
+    <ClInclude Include="LuaBridge\detail\Iterator.h" />
+    <ClInclude Include="LuaBridge\detail\LuaException.h" />
+    <ClInclude Include="LuaBridge\detail\LuaHelpers.h" />
+    <ClInclude Include="LuaBridge\detail\LuaRef.h" />
+    <ClInclude Include="LuaBridge\detail\Namespace.h" />
+    <ClInclude Include="LuaBridge\detail\Security.h" />
+    <ClInclude Include="LuaBridge\detail\Stack.h" />
+    <ClInclude Include="LuaBridge\detail\TypeList.h" />
+    <ClInclude Include="LuaBridge\detail\TypeTraits.h" />
+    <ClInclude Include="LuaBridge\detail\Userdata.h" />
+    <ClInclude Include="LuaBridge\List.h" />
+    <ClInclude Include="LuaBridge\LuaBridge.h" />
+    <ClInclude Include="LuaBridge\Map.h" />
+    <ClInclude Include="LuaBridge\Optional.h" />
+    <ClInclude Include="LuaBridge\RefCountedObject.h" />
+    <ClInclude Include="LuaBridge\RefCountedPtr.h" />
+    <ClInclude Include="LuaBridge\UnorderedMap.h" />
+    <ClInclude Include="LuaBridge\Vector.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{DB08A26D-E9D3-4EE8-A4EF-E4B8745D90B8}</ProjectGuid>
+    <ProjectGuid>{D32B93E0-883F-42EE-883F-FAACA703D827}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>common</RootNamespace>
+    <RootNamespace>lualuabridge</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -92,16 +119,11 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\log\src;..\3rd\lua-5.3.6\src;..\3rd\lua-luabridge</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-    <Lib>
-      <AdditionalDependencies>winmm.lib</AdditionalDependencies>
-    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -153,27 +175,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="src\atomic.h" />
-    <ClInclude Include="src\define.h" />
-    <ClInclude Include="src\luamodule.h" />
-    <ClInclude Include="src\module.h" />
-    <ClInclude Include="src\os.h" />
-    <ClInclude Include="src\raobjlist.h" />
-    <ClInclude Include="src\server.h" />
-    <ClInclude Include="src\synclock.h" />
-    <ClInclude Include="src\sysutil.h" />
-    <ClInclude Include="src\thread.h" />
-    <ClInclude Include="src\threadqueue.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\luamodule.cpp" />
-    <ClCompile Include="src\os.cpp" />
-    <ClCompile Include="src\server.cpp" />
-    <ClCompile Include="src\synclock.cpp" />
-    <ClCompile Include="src\sysutil.cpp" />
-    <ClCompile Include="src\thread.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

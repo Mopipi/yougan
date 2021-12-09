@@ -26,6 +26,7 @@ public:
     bool connect(const char *host, Port port, NetCallback* netkCallback, NetID* netid = 0, uint32 timeout = 3000);
     bool connectAsyn(Host host, Port port, uint32* handle, NetCallback* netkCallback, uint32 timeout = 3000);
     bool connectAsyn(const char *host, Port port, uint32* handle, NetCallback* netkCallback, uint32 timeout = 3000);
+    bool send(NetID netid, const void *data, uint32 len);
 private:
     typedef std::vector<BaseHandler*> ListenQueue;
 

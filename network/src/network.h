@@ -20,6 +20,8 @@ private:
 public:
     NetID addHandler(BaseHandler *handler);
     void closeByNetid(NetID netid);
+    void enableWrite(BaseHandler *handler, bool enabel);
+    bool send(NetID netid, const char *data, uint32 len);
 private:
     void delHandler(NetPoll *poll);
 private:

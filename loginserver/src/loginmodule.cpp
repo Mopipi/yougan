@@ -45,7 +45,7 @@ public:
 
 class InnerNetCallback : public NetCallback {
 public:
-    InnerNetCallback(NetModule* netModule) : m_netModule(netModule) {
+    InnerNetCallback(NetModule* netModule, LoginModule *loginModule) : m_netModule(netModule), m_loginModule(loginModule){
 
     }
     virtual void onAccept(Port listenPort, NetID netid, Host host, Port port) {
@@ -53,7 +53,18 @@ public:
     }
 
     virtual void onRecv(NetID netid, const char *data, int length) {
-
+        // eg:
+        struct test {
+            int a;
+            int b;
+        };
+        test *t = (struct test*)data;
+        LOG_INFO("InnerNetCallback::onRecv data { int a = %d; int b = %d}", t->a, t->b);
+        LuaRef pkg = m_loginModule->luaNewTable();
+        pkg["netid"] = netid;
+        pkg["a"] = t->a;
+        pkg["b"] = t->b;
+        m_loginModule->luaRecv(pkg);
     }
 
     virtual void onDisconnect(NetID netid) {
@@ -66,6 +77,11 @@ public:
     virtual void onConnect(bool result, uint32 handle, NetID netid, Host host, Port port) {
         if (result) {
             m_gateid = netid;
+            struct {
+                int b = 10;
+                int c = 90;
+            }a;
+            m_netModule->send(m_gateid, &a, sizeof(a));
         } else {
             m_netModule->connectAsyn(host, port, &handle, this);
         }
@@ -74,6 +90,7 @@ public:
 private:
     NetID m_gateid;
     NetModule * m_netModule;
+    LoginModule *m_loginModule;
 };
 
 // eg: timer
@@ -94,7 +111,7 @@ private:
     ClockModule * m_clock;
 };
 
-LoginModule::LoginModule() {
+LoginModule::LoginModule() : LuaModule("initLogin.lua") {
 
 }
 
@@ -102,8 +119,17 @@ LoginModule::~LoginModule() {
 
 }
 
+void LoginModule::onLuaState(lua_State *L) {
+    getGlobalNamespace(L)
+        .deriveClass<LoginModule, LuaModule>("LoginModule")
+        .addFunction("sendClient", &LoginModule::sendClient)
+        .endClass();
+}
+
 int LoginModule::init() {
     EXPECT_ON_INIT(LOG_MODULE);
+
+    LuaModule::luaInit();
 
     LogModule *logModule = dynamic_cast<LogModule*>(getServer()->getModel(LOG_MODULE));
     // eg:
@@ -113,7 +139,10 @@ int LoginModule::init() {
 }
 
 int LoginModule::start() {
+    EXPECT_ON_START(CLOCK_MODULE)
     DEPEND_ON_START(NET_MODULE);
+
+    LuaModule::luaStart();
 
     m_netModule = dynamic_cast<NetModule*>(getServer()->getModel(NET_MODULE));
 
@@ -123,7 +152,7 @@ int LoginModule::start() {
     GameNetCallback *gameNetworkCallBack = new GameNetCallback;
     m_netModule->listen("0.0.0.0", 8002, 1, gameNetworkCallBack);
 
-    InnerNetCallback *innerNetworkCallBack = new InnerNetCallback(m_netModule);
+    InnerNetCallback *innerNetworkCallBack = new InnerNetCallback(m_netModule, this);
     m_netModule->listen("0.0.0.0", 8003, 1, innerNetworkCallBack);
     m_netModule->listen("0.0.0.0", 8004, 1, innerNetworkCallBack);
 
@@ -135,14 +164,16 @@ int LoginModule::start() {
     // eg:
     g_money->write(LV_INFO, "id:%d,type:%d,count:%d", 1001, 1, 50);
 
-    ClockModule *clock = dynamic_cast<ClockModule*>(getServer()->getModel(CLOCK_MODULE));
-    TestTimer *timer = new TestTimer(clock);
+    m_clockModule = dynamic_cast<ClockModule*>(getServer()->getModel(CLOCK_MODULE));
+    TestTimer *timer = new TestTimer(m_clockModule);
     timer->call();
     return Succeed;
 }
 
 int LoginModule::update() {
-    return Succeed;
+    uint32 now = m_clockModule->getUtcTime();
+    LuaModule::luaUpdate(now);
+    return Pending;
 }
 
 int LoginModule::stop() {
@@ -151,4 +182,8 @@ int LoginModule::stop() {
 
 int LoginModule::release() {
     return Succeed;
+}
+
+void LoginModule::sendClient(uint32 plyaerId) {
+    LOG_INFO("LoginModule::sendClient plyaerId = %d", plyaerId);
 }

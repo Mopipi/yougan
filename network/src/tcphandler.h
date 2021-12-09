@@ -26,7 +26,19 @@ public:
     virtual void onCanWrite();
     virtual void onClose();
 public:
+    void send(const char *data, uint32 len);
+public:
     char *m_recvBuffer;
     Message m_message;
+
+    SpinLock m_lock;
+
+    uint32 m_writeLen;
+    uint32 m_writePoint;
+    char *m_writeBuffer;
+
+    uint32 m_pushLen;
+    uint32 m_pushPoint;
+    char *m_pushBuffer;
 };
 #endif

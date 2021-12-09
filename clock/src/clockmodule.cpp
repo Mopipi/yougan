@@ -160,6 +160,8 @@ int ClockModule::start() {
 }
 
 int ClockModule::update() {
+    m_utcTime = (uint32)time(0);
+
     uint64 nowtick = GetTickTime();
     uint32 diff = (uint32)(nowtick - m_frameTick);
     if (m_fpsMs <= diff) {
@@ -214,8 +216,6 @@ uint32 ClockModule::work() {
     m_quit = false;
 
     while (!m_quit) {
-        m_utcTime = (uint32)time(0);
-
         uint64 now = GetTickTime();
         int diff = (int)(now - m_timer->lastTick);
         for (int i = 0; i < diff; ++i) {

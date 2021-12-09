@@ -1,4 +1,5 @@
 #include "network.h"
+#include "tcphandler.h"
 
 struct NetPoll {
     NetPoll() {
@@ -10,6 +11,7 @@ struct NetPoll {
         FD_SET(sock, &m_rfdset);
         m_maxfd = ((m_maxfd) > (int)(sock)) ? (m_maxfd) : (int)(sock);
     }
+
     void del(SOCKET sock) {
         FD_CLR(sock, &m_rfdset);
         FD_CLR(sock, &m_wfdset);
@@ -96,6 +98,29 @@ NetID Network::addHandler(BaseHandler *handler) {
 void Network::closeByNetid(NetID netid) {
     NetPoll *poll = &m_netpolls[netid % m_count];
     poll->off(netid);
+}
+
+void Network::enableWrite(BaseHandler *handler, bool enabel) {
+    NetPoll *poll = &m_netpolls[handler->getNetId() % m_count];
+    fd_set *wfdset = &poll->m_wfdset;
+    if (enabel) {
+        FD_SET(handler->getSocket(), wfdset);
+    } else {
+        FD_CLR(handler->getSocket(), wfdset);
+    }
+}
+
+bool Network::send(NetID netid, const char *data, uint32 len) {
+    bool sendok = false;
+    m_rwlock.rlock();
+    RegisterTableIter iter = m_registerTable.find(netid);
+    if (iter != m_registerTable.end()) {
+        sendok = true;
+        TcpHandler *handler = (TcpHandler*)iter->handler;
+        handler->send(data, len);
+    }
+    m_rwlock.unrlock();
+    return sendok;
 }
 
 void Network::delHandler(NetPoll *poll) {

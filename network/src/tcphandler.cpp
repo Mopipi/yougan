@@ -7,8 +7,14 @@
 #define NET_BUFF_LEN 2048
 
 TcpHandler::TcpHandler(NetCallback* netCallback, JobQueue *jobQueue, SOCKET sock, uint32 size)
-    :BaseHandler(netCallback, jobQueue, sock, HT_TCP){
+    :BaseHandler(netCallback, jobQueue, sock, HT_TCP) {
+    m_writeLen = 0;
+    m_writePoint = 0;
+    m_pushLen = 0;
+    m_pushPoint = 0;
     m_recvBuffer = new char[NET_BUFF_LEN];
+    m_writeBuffer = new char[NET_BUFF_LEN];
+    m_pushBuffer = new char[NET_BUFF_LEN];
 }
 
 TcpHandler::~TcpHandler() {
@@ -66,7 +72,43 @@ void TcpHandler::onCanRead(){
 }
 
 void TcpHandler::onCanWrite() {
+    m_lock.lock();
+    while (true) {
+        if (m_sock == SOCKET_ERROR) {
+            return;
+        }
 
+        if (m_writeLen == 0) {
+            m_lock.lock();
+            char *swapBuffer = m_pushBuffer;
+            m_pushBuffer = m_writeBuffer;
+            m_writeBuffer = swapBuffer;
+
+            m_writeLen = m_pushLen;
+            m_pushLen = 0;
+            m_lock.unlock();
+
+            if (m_writeLen == 0) {
+                m_network->enableWrite(this, false);
+                return;
+            }
+        }
+
+        while (m_writePoint < m_writeLen) {
+            int n = Socket::send(m_sock, m_writeBuffer + m_writePoint, m_writeLen - m_writePoint, 0);
+            if (n < 0) {
+                if (n == SOCKET_ERROR && Socket::getErrno() == PI_EWOULDBLOCK) {
+                    return;
+                }
+                m_network->closeByNetid(m_netid);
+                return;
+            }
+            m_writePoint += n;
+        }
+        m_writeLen = 0;
+        m_writePoint = 0;
+    }
+    m_lock.unlock();
 }
 
 void TcpHandler::onClose() {
@@ -75,5 +117,32 @@ void TcpHandler::onClose() {
 
     Socket::shutdown(m_sock, PI_SD_BOTH);
     Socket::clostSocket(m_sock);
-    delete this;
+    delete this;;
+}
+
+void TcpHandler::send(const char *data, uint32 len) {
+    // 先用，后面在细化
+    m_lock.lock();
+    char *buffer = m_pushBuffer + m_pushLen;
+    uint16* msglen = (uint16*)buffer;
+    *msglen = len;
+    memcpy(buffer + sizeof(uint16), data, len);
+    m_pushLen = m_pushLen + sizeof(uint16) + len;
+
+    if (m_writeLen == 0) {
+        int n = Socket::send(m_sock, m_pushBuffer + m_pushPoint, m_pushLen - m_pushPoint, 0);
+        if (n < 0) {
+            n = 0; // ignore error, let socket thread try again
+        }
+        m_pushPoint += n;
+    }
+
+    if (m_pushPoint < m_pushLen) {
+        m_network->enableWrite(this, true);
+    }
+    else {
+        m_pushLen = 0;
+        m_pushPoint = 0;
+    }
+    m_lock.unlock();
 }

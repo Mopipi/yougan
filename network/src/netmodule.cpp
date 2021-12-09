@@ -199,3 +199,7 @@ bool NetModule::connectAsyn(const char *host, Port port, uint32 *handle, NetCall
     }
     return false;
 }
+
+bool NetModule::send(NetID netid, const void *data, uint32 len) {
+    return m_network->send(netid, (char*)data, len);
+}

@@ -41,6 +41,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "log", "log\log.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "clock", "clock\clock.vcxproj", "{15820F4A-7F21-4203-A9F1-F266E3BA35B8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua-luabridge", "3rd\lua-luabridge\lua-luabridge.vcxproj", "{D32B93E0-883F-42EE-883F-FAACA703D827}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -121,6 +123,14 @@ Global
 		{15820F4A-7F21-4203-A9F1-F266E3BA35B8}.Release|x64.Build.0 = Release|x64
 		{15820F4A-7F21-4203-A9F1-F266E3BA35B8}.Release|x86.ActiveCfg = Release|Win32
 		{15820F4A-7F21-4203-A9F1-F266E3BA35B8}.Release|x86.Build.0 = Release|Win32
+		{D32B93E0-883F-42EE-883F-FAACA703D827}.Debug|x64.ActiveCfg = Debug|x64
+		{D32B93E0-883F-42EE-883F-FAACA703D827}.Debug|x64.Build.0 = Debug|x64
+		{D32B93E0-883F-42EE-883F-FAACA703D827}.Debug|x86.ActiveCfg = Debug|Win32
+		{D32B93E0-883F-42EE-883F-FAACA703D827}.Debug|x86.Build.0 = Debug|Win32
+		{D32B93E0-883F-42EE-883F-FAACA703D827}.Release|x64.ActiveCfg = Release|x64
+		{D32B93E0-883F-42EE-883F-FAACA703D827}.Release|x64.Build.0 = Release|x64
+		{D32B93E0-883F-42EE-883F-FAACA703D827}.Release|x86.ActiveCfg = Release|Win32
+		{D32B93E0-883F-42EE-883F-FAACA703D827}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -135,6 +145,7 @@ Global
 		{FE033E0D-E265-40E1-86BF-9B69683728D4} = {CC6B8202-AE04-4E96-AB50-A54B4500B9C0}
 		{5CA824F9-556F-4C9E-B101-C12B85915FA1} = {6575402C-BFB5-47AC-8F42-14D1E5987D4F}
 		{15820F4A-7F21-4203-A9F1-F266E3BA35B8} = {6575402C-BFB5-47AC-8F42-14D1E5987D4F}
+		{D32B93E0-883F-42EE-883F-FAACA703D827} = {CC6B8202-AE04-4E96-AB50-A54B4500B9C0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DF30360F-9FAB-4A35-825F-0E539BE7E415}
