@@ -4,7 +4,7 @@
 #include "basehandler.h"
 
 struct Message {
-    typedef sint16 msglen;
+    typedef uint16 msglen;
     Message() {reset();}
     void reset() {
         read = -(msglen)sizeof(msglen);
@@ -12,7 +12,7 @@ struct Message {
         buffer = 0;
     }
     sint32 read;
-    msglen size;
+    sint32 size;
     char* buffer;
 };
 

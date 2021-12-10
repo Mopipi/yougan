@@ -121,28 +121,33 @@ void TcpHandler::onClose() {
 }
 
 void TcpHandler::send(const char *data, uint32 len) {
-    // 先用，后面在细化
     m_lock.lock();
     char *buffer = m_pushBuffer + m_pushLen;
-    uint16* msglen = (uint16*)buffer;
+    Message::msglen* msglen = (Message::msglen*)buffer;
     *msglen = len;
-    memcpy(buffer + sizeof(uint16), data, len);
-    m_pushLen = m_pushLen + sizeof(uint16) + len;
+    memcpy(buffer + sizeof(Message::msglen), data, len);
+    m_pushLen = m_pushLen + sizeof(Message::msglen) + len;
 
+    // todo :转交给网络线程处理，测试
     if (m_writeLen == 0) {
-        int n = Socket::send(m_sock, m_pushBuffer + m_pushPoint, m_pushLen - m_pushPoint, 0);
-        if (n < 0) {
-            n = 0; // ignore error, let socket thread try again
-        }
-        m_pushPoint += n;
-    }
-
-    if (m_pushPoint < m_pushLen) {
         m_network->enableWrite(this, true);
     }
-    else {
-        m_pushLen = 0;
-        m_pushPoint = 0;
-    }
+
+    // tudo：后面在细化，优先直接发送，socket异常在转交给网络线程，还有buffer扩容。
+    //if (m_writeLen == 0) {
+    //    int n = Socket::send(m_sock, m_pushBuffer + m_pushPoint, m_pushLen - m_pushPoint, 0);
+    //    if (n < 0) {
+    //        n = 0; // ignore error, let socket thread try again
+    //    }
+    //    m_pushPoint += n;
+    //}
+
+    //if (m_pushPoint < m_pushLen) {
+    //    m_network->enableWrite(this, true);
+    //}
+    //else {
+    //    m_pushLen = 0;
+    //    m_pushPoint = 0;
+    //}
     m_lock.unlock();
 }

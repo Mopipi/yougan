@@ -152,7 +152,7 @@ void Network::delHandler(NetPoll *poll) {
 uint32 Network::dispatch(NetPoll *poll) {
     m_quit = false;
 
-    struct timeval tv = { 1, 0 };
+    struct timeval tv = { 0, 10000 };
     fd_set rfdset;
     fd_set wfdset;
     while (!m_quit) {
